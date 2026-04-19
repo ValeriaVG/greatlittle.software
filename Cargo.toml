@@ -8,3 +8,4 @@ edition = "2024"
 
 [dependencies]
 macros = { path = "macros" }
+minify-html = "0.18.1"

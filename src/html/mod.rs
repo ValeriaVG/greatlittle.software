@@ -22,7 +22,17 @@ pub fn finalize(f: Fragment) -> String {
             html.push_str(&tag);
         }
     }
-    html
+    minify(&html)
+}
+
+fn minify(html: &str) -> String {
+    let mut cfg = minify_html::Cfg::new();
+    cfg.minify_css = true;
+    cfg.minify_js = true;
+    cfg.keep_html_and_head_opening_tags = true;
+    cfg.keep_closing_tags = true;
+    let bytes = minify_html::minify(html.as_bytes(), &cfg);
+    String::from_utf8(bytes).expect("minify-html produced invalid utf-8")
 }
 
 #[cfg(test)]
@@ -37,7 +47,7 @@ mod tests {
             js: String::new(),
         };
         let out = finalize(f);
-        assert!(out.contains("<style>body{color:red}</style>\n</head>"));
+        assert!(out.contains("<style>body{color:red}</style></head>"));
     }
 
     #[test]
@@ -48,13 +58,13 @@ mod tests {
             js: "console.log(1)".into(),
         };
         let out = finalize(f);
-        assert!(out.contains("<script>console.log(1)</script>\n</body>"));
+        assert!(out.contains("<script>console.log(1)</script></body>"));
     }
 
     #[test]
     fn empty_css_and_js_leaves_html_untouched() {
         let html = "<!doctype html><html><head></head><body></body></html>".to_string();
         let f = Fragment { html: html.clone(), css: String::new(), js: String::new() };
-        assert_eq!(finalize(f), html);
+        assert_eq!(finalize(f), "<!doctype html><html><head></head><body></body></html>");
     }
 }
