@@ -87,7 +87,7 @@ Redas shared that his only regret was that he hasn't built psikat sooner:
 
 He started by building an audio file browser for the terminal, then one small goal after another psikat came to be as it is today. It's not what you would consider a DAW yet (it lacks recording capabilities), but you can mix a song right there in your browser, like this one, I called it "psikat jam":
 
-<audio controls="1" controlslist="nodownload nofullscreen noremoteplayback" src="psikat_jam.wav" loop>Your browser does not support the audio tag.</audio>
+<audio controls="1" controlslist="nodownload nofullscreen noremoteplayback" src="psikat_jam.wav" loop><a href="psikat_jam.wav">Click to play</a></audio>
 
 I imagine this could be a soundtrack to something like nyan cat, but way cooler:
 !["Nyan cat shooting through the stars leaving a rainbow trail](https://gist.githubusercontent.com/s-shivangi/7b54ec766cf446cafeb83882b590174d/raw/8957088c2e31dba6d72ce86c615cb3c7bb7f0b0c/nyan-cat.gif)
