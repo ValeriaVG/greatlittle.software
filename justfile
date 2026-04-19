@@ -8,3 +8,6 @@ build:
 
 serve port="8000":
     python3 -m http.server {{port}} --directory dist
+
+deploy: build
+    npx wrangler deploy
