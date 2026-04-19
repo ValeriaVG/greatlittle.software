@@ -11,3 +11,30 @@ serve port="8000":
 
 deploy: build
     npx wrangler deploy
+
+write title description="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    title={{ quote(title) }}
+    description={{ quote(description) }}
+    base=$(printf '%s' "$title" | tr '[:upper:]' '[:lower:]' \
+        | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')
+    if [ -z "$base" ]; then
+        echo "title produced empty slug" >&2
+        exit 1
+    fi
+    slug="$base"
+    if [ -e "content/$slug" ]; then
+        slug="$base-$(date +%Y-%m-%d)"
+    fi
+    if [ -e "content/$slug" ]; then
+        slug="$base-$(date +%Y-%m-%d-%H%M%S)"
+    fi
+    dir="content/$slug"
+    mkdir -p "$dir"
+    file="$dir/index.md"
+    sed -e "s|__TITLE__|$title|" \
+        -e "s|__DESCRIPTION__|$description|" \
+        -e "s|__DATE__|$(date -u +%Y-%m-%dT%H:%M:%SZ)|" \
+        content/article.tpl.md > "$file"
+    echo "$file"
