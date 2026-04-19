@@ -9,6 +9,7 @@ pub fn render() -> Fragment {
     const TITLE:&str= "Great Little Software";
     layout(
         TITLE,
+        "Collection of indie apps, ideas, tooling, stories and articles about larger-than-life people building tiny awesome products.",
         intro(
             &(TITLE.to_owned()+".")
         )
