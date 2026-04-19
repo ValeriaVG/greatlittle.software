@@ -1,0 +1,31 @@
+section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+h1 {
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 0.9;
+    letter-spacing: 0.01em;
+    font-size: clamp(2.75rem, 11vw, 9rem);
+    margin: 0;
+    color: #141414;
+}
+span {
+    display: block;
+}
+.underline {
+    width: 92%;
+    height: 0.22em;
+    margin: 0.18em auto 0;
+    color: #141414;
+    overflow: visible;
+}
+@media (min-width: 768px) {
+    h1 { letter-spacing: 0.02em; }
+}

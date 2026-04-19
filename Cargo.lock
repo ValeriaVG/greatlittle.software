@@ -5,3 +5,10 @@ version = 4
 [[package]]
 name = "greatlittle_software"
 version = "0.1.0"
+dependencies = [
+ "macros",
+]
+
+[[package]]
+name = "macros"
+version = "0.1.0"
