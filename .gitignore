@@ -1,5 +1,6 @@
 /target
 dist
 .dev-dist
+.preview-dist
 .wrangler
 .DS_Store

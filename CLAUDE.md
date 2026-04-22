@@ -23,4 +23,5 @@ Uses justfile. Basics:
 - Never hardcode html, even partial in the Rust code (except for testing), use partial html files instead
 - Never hardcode js or css, even partial in the Rust or HTML code (except for testing), use partial js or css files instead
 - For Rust code write types/interfaces first, then a test, then functionality
+- For frontend templates create previews via #[preview("Name of preview")]
 

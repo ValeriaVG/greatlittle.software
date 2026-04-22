@@ -13,6 +13,34 @@ fn main() -> std::io::Result<()> {
         return dev::run(port);
     }
 
+    if args.get(1).map(|s| s.as_str()) == Some("preview") {
+        #[cfg(feature = "preview")]
+        {
+            use greatlittle_software::preview;
+            let sub = args.get(2).map(|s| s.as_str());
+            return match sub {
+                Some("build") => {
+                    let out = args
+                        .get(3)
+                        .map(PathBuf::from)
+                        .unwrap_or_else(|| PathBuf::from(preview::PREVIEW_OUT));
+                    preview::build(&out)?;
+                    println!("wrote previews to {}", out.display());
+                    Ok(())
+                }
+                _ => {
+                    let port = sub.and_then(|s| s.parse::<u16>().ok()).unwrap_or(8001);
+                    preview::run(port)
+                }
+            };
+        }
+        #[cfg(not(feature = "preview"))]
+        {
+            eprintln!("preview subcommand requires `--features preview`");
+            std::process::exit(1);
+        }
+    }
+
     let page = finalize(home::render());
     let dist = Path::new("dist");
     fs::create_dir_all(dist)?;

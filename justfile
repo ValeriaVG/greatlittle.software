@@ -10,7 +10,13 @@ serve port="8000":
     python3 -m http.server {{port}} --directory dist
 
 dev port="8000":
-    cargo run -- dev {{port}}
+    cargo watch -w src -w Cargo.toml -i '*.html' -i '*.css' -i '*.js' -x 'run -- dev {{port}}'
+
+preview port="8001":
+    cargo watch -w src -w Cargo.toml -i '*.html' -i '*.css' -i '*.js' -x 'run --features preview -- preview {{port}}'
+
+preview-build out=".preview-dist":
+    cargo run --features preview -- preview build {{out}}
 
 deploy: build
     npx wrangler deploy

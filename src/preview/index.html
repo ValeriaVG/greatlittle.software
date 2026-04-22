@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Previews</title>
+</head>
+
+<body class="preview-shell">
+    <aside class="preview-sidebar">
+        <h1>Previews</h1>
+        <ul class="preview-list">
+            <!--for p in previews-->
+            <!--if p.group-->
+            <li class="preview-group" style="--depth:{p.depth}">{p.group}</li>
+            <!--/if-->
+            <!--if p.href-->
+            <li class="preview-item" style="--depth:{p.depth}"><a href="#{p.href}" data-path="{p.href}">{p.label}</a></li>
+            <!--/if-->
+            <!--/for-->
+        </ul>
+    </aside>
+    <main class="preview-main">
+        <div class="preview-toolbar" role="toolbar" aria-label="viewport">
+            <button type="button" data-device="full" data-width="0" aria-pressed="true" aria-label="Full width" title="Full">
+                <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M6 2H2v4M10 2h4v4M6 14H2v-4M10 14h4v-4" />
+                </svg>
+            </button>
+            <button type="button" data-device="desktop" data-width="1280" aria-pressed="false" aria-label="Desktop 1280" title="Desktop 1280">
+                <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="1.5" y="2.5" width="13" height="9" rx="1" />
+                    <path d="M6 14h4M8 11.5V14" />
+                </svg>
+            </button>
+            <button type="button" data-device="tablet" data-width="768" aria-pressed="false" aria-label="Tablet 768" title="Tablet 768">
+                <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="1.5" width="10" height="13" rx="1.5" />
+                    <path d="M7 12.5h2" />
+                </svg>
+            </button>
+            <button type="button" data-device="mobile" data-width="375" aria-pressed="false" aria-label="Mobile 375" title="Mobile 375">
+                <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4.5" y="1.5" width="7" height="13" rx="1.5" />
+                    <path d="M7.5 12.5h1" />
+                </svg>
+            </button>
+            <span class="preview-size" aria-live="polite"></span>
+        </div>
+        <div class="preview-viewport">
+            <iframe class="preview-frame" src="about:blank" title="preview"></iframe>
+        </div>
+    </main>
+</body>
+
+</html>

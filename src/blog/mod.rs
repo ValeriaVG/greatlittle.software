@@ -9,6 +9,8 @@ use serde::Deserialize;
 use crate::home::layout;
 use crate::html::{finalize, template, Bundle};
 
+mod card;
+
 const SITE_URL: &str = "https://greatlittle.software";
 const SITE_NAME: &str = "Great Little Software";
 const BLOG_TITLE: &str = "Blog";
@@ -176,10 +178,15 @@ fn crumbs_bundle(items: &[BreadcrumbsItem]) -> Bundle {
 }
 
 fn card_for(post: &Post) -> String {
+    let cover_url = if post.fm.cover.src.is_empty() {
+        String::new()
+    } else {
+        format!("/blog/{}/{}", post.slug, post.fm.cover.src)
+    };
     card(
         &post.slug,
         post.draft_marker(),
-        &post.fm.cover.src,
+        &cover_url,
         &post.fm.cover.alt,
         &post.fm.created_at,
         &post.date_display,

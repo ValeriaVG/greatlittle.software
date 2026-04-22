@@ -2,6 +2,8 @@ use macros::html_template;
 
 use crate::html::{template, Bundle};
 
+mod intro;
+
 html_template!(intro, "src/home/intro");
 html_template!(layout, "src/home/layout");
 

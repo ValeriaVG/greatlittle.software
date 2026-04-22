@@ -19,6 +19,14 @@
     text-transform: uppercase;
     border-radius: 3px;
 }
+.post-card:not(:has(.post-card-cover)) .post-card-draft {
+    position: static;
+    display: inline-block;
+    margin: 1.5rem 1.5rem 0;
+}
+.post-card:not(:has(.post-card-cover)) .post-card-body {
+    padding-top: 0.75rem;
+}
 .post-card:hover { border-color: #141414; }
 .post-card a {
     display: block;
