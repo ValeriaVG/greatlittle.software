@@ -1,12 +1,15 @@
-use macros::preview;
+#[cfg(feature = "preview")]
+mod previews {
+    use macros::preview;
 
-use crate::html::Bundle;
+    use crate::html::Bundle;
 
-#[preview("Intro")]
-fn basic() -> Bundle {
-    Bundle {
-        html: super::intro("Great Little Software."),
-        css: super::intro_css(),
-        js: super::intro_js(),
+    #[preview("Intro")]
+    fn basic() -> Bundle {
+        Bundle {
+            html: super::super::intro("Great Little Software."),
+            css: super::super::intro_css(),
+            js: super::super::intro_js(),
+        }
     }
 }

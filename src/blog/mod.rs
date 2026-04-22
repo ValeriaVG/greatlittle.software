@@ -9,6 +9,8 @@ use serde::Deserialize;
 use crate::home::layout;
 use crate::html::{finalize, template, Bundle};
 
+mod article;
+mod breadcrumbs;
 mod card;
 
 const SITE_URL: &str = "https://greatlittle.software";

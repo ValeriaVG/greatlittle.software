@@ -1,18 +1,32 @@
 .breadcrumbs {
     margin: 1.5rem auto 1.5rem;
+    padding: 0 1.5rem;
     font-size: 0.8125rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: #6a6a6a;
-    max-width: 41rem;
+    max-width: 44rem;
 }
 .breadcrumbs ol {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
     gap: 0.4em;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.breadcrumbs li {
+    min-width: 0;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+.breadcrumbs li:has([aria-current="page"]) {
+    flex-shrink: 1;
+    min-width: 3ch;
 }
 .breadcrumbs li + li::before {
     content: "/";
@@ -29,5 +43,5 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 24ch;
+    display: block;
 }

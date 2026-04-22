@@ -34,12 +34,45 @@ html, body {
 }
 
 .preview-group {
-    padding: .75rem .5rem .25rem calc(.5rem + var(--depth, 0) * .75rem);
+    padding: .75rem 0 .25rem 0;
+}
+
+.preview-group-toggle {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    width: 100%;
+    padding: .15rem .5rem .15rem calc(.5rem + var(--depth, 0) * .75rem);
+    border: 0;
+    background: transparent;
+    font: inherit;
     font-size: .7rem;
     text-transform: uppercase;
     letter-spacing: .06em;
     color: #888;
     font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.preview-group-toggle:hover {
+    background: #eee;
+    color: #333;
+}
+
+.preview-chevron {
+    flex: none;
+    transition: transform .15s ease;
+}
+
+.preview-group-toggle[aria-expanded="false"] .preview-chevron {
+    transform: rotate(-90deg);
+}
+
+.preview-item.collapsed,
+.preview-group.collapsed {
+    display: none;
 }
 
 .preview-item a {

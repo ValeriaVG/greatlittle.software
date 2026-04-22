@@ -13,10 +13,17 @@
         <ul class="preview-list">
             <!--for p in previews-->
             <!--if p.group-->
-            <li class="preview-group" style="--depth:{p.depth}">{p.group}</li>
+            <li class="preview-group" style="--depth:{p.depth}" data-depth="{p.depth}">
+                <button type="button" class="preview-group-toggle" aria-expanded="true">
+                    <svg class="preview-chevron" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 6l4 4 4-4" />
+                    </svg>
+                    <span>{p.group}</span>
+                </button>
+            </li>
             <!--/if-->
             <!--if p.href-->
-            <li class="preview-item" style="--depth:{p.depth}"><a href="#{p.href}" data-path="{p.href}">{p.label}</a></li>
+            <li class="preview-item" style="--depth:{p.depth}" data-depth="{p.depth}"><a href="#{p.href}" data-path="{p.href}">{p.label}</a></li>
             <!--/if-->
             <!--/for-->
         </ul>
