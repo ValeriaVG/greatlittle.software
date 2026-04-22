@@ -1,4 +1,4 @@
-use greatlittle_software::html::{template, Fragment};
+use greatlittle_software::html::{template, Bundle};
 use macros::html_template;
 
 html_template!(render_example, "tests/fixtures/example.html");
@@ -11,7 +11,7 @@ fn renders_example_with_group_and_scalars() {
         src: "/img/hello.png".into(),
         alt_text: "Hello".into(),
     };
-    let out = render_example(&image, "Welcome", "Body text.").html;
+    let out = render_example(&image, "Welcome", "Body text.");
     let expected = "<section>\n    <img src=\"/img/hello.png\" alt=\"Hello\" />\n    <h1>Welcome</h1>\n    <p>Body text.</p>\n</section>\n";
     assert_eq!(out, expected);
 }
@@ -19,7 +19,7 @@ fn renders_example_with_group_and_scalars() {
 #[test]
 fn preserves_static_markup_verbatim() {
     let image = RenderExampleImage { src: "a".into(), alt_text: "b".into() };
-    let out = render_example(&image, "t", "c").html;
+    let out = render_example(&image, "t", "c");
     assert!(out.starts_with("<section>"));
     assert!(out.trim_end().ends_with("</section>"));
 }
@@ -27,7 +27,7 @@ fn preserves_static_markup_verbatim() {
 #[test]
 fn escapes_special_characters_in_template_literals() {
     let image = RenderExampleImage { src: "x".into(), alt_text: "y".into() };
-    let out = render_example(&image, "t", "c").html;
+    let out = render_example(&image, "t", "c");
     assert!(out.contains("src=\"x\""));
     assert!(out.contains("alt=\"y\""));
 }
@@ -35,7 +35,7 @@ fn escapes_special_characters_in_template_literals() {
 #[test]
 fn substitutes_values_not_placeholder_text() {
     let image = RenderExampleImage { src: "S".into(), alt_text: "A".into() };
-    let out = render_example(&image, "T", "C").html;
+    let out = render_example(&image, "T", "C");
     assert!(!out.contains("{title}"));
     assert!(!out.contains("{image.src}"));
     assert!(!out.contains("{image.alt_text}"));
@@ -44,7 +44,7 @@ fn substitutes_values_not_placeholder_text() {
 
 #[test]
 fn scalars_only_template() {
-    let out = render_scalars("Hi", "there").html;
+    let out = render_scalars("Hi", "there");
     assert_eq!(out, "<h1>Hi</h1>\n<p>there</p>\n");
 }
 
@@ -54,7 +54,7 @@ fn repeated_placeholders_share_one_parameter() {
         href: "/x".into(),
         label: "X".into(),
     };
-    let out = render_repeated(&link).html;
+    let out = render_repeated(&link);
     assert_eq!(
         out,
         "<a href=\"/x\">X</a> and again <a href=\"/x\">X</a>\n"
@@ -64,7 +64,7 @@ fn repeated_placeholders_share_one_parameter() {
 #[test]
 fn empty_values_render_as_empty_strings() {
     let image = RenderExampleImage { src: String::new(), alt_text: String::new() };
-    let out = render_example(&image, "", "").html;
+    let out = render_example(&image, "", "");
     assert!(out.contains("src=\"\""));
     assert!(out.contains("<h1></h1>"));
     assert!(out.contains("<p></p>"));
@@ -78,7 +78,7 @@ fn for_loop_renders_each_item() {
         RenderLoopedItem { href: "/blog/".into(), label: "Blog".into(), current: String::new() },
         RenderLoopedItem { href: String::new(), label: "Post".into(), current: "page".into() },
     ];
-    let out = render_looped(&items).html;
+    let out = render_looped(&items);
     assert!(out.contains("<a href=\"/\">Home</a>"));
     assert!(out.contains("<a href=\"/blog/\">Blog</a>"));
     assert!(out.contains("<span>Post</span>"));
@@ -87,9 +87,9 @@ fn for_loop_renders_each_item() {
 }
 
 #[test]
-fn slot_fragments_bubble_css_and_js() {
+fn slot_bundles_bubble_css_and_js() {
     html_template!(render_slotted, "tests/fixtures/slotted.html");
-    let child = Fragment {
+    let child = Bundle {
         html: "<p>hi</p>".into(),
         css: "p{color:red}".into(),
         js: "x=1".into(),

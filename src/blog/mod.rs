@@ -7,7 +7,7 @@ use pulldown_cmark::{html as cmark_html, Options, Parser};
 use serde::Deserialize;
 
 use crate::home::layout;
-use crate::html::{finalize, template, Fragment};
+use crate::html::{finalize, template, Bundle};
 
 const SITE_URL: &str = "https://greatlittle.software";
 const SITE_NAME: &str = "Great Little Software";
@@ -110,7 +110,6 @@ pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::
 
     let mut written = Vec::new();
     let mut cards_html = String::new();
-    let mut cards_css = String::new();
     for post in &posts {
         let post_out = blog_out.join(&post.slug);
         fs::create_dir_all(&post_out)?;
@@ -120,15 +119,11 @@ pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::
         fs::write(&out, render_post_page(post))?;
         written.push(out.display().to_string());
 
-        let c = card_for(post);
-        if cards_css.is_empty() {
-            cards_css = c.css;
-        }
-        cards_html.push_str(&c.html);
+        cards_html.push_str(&card_for(post));
     }
 
-    let cards = Fragment { html: cards_html, css: cards_css, js: String::new() };
-    let crumbs = breadcrumbs(&[crumb("/", "Home"), current_crumb("Blog")]);
+    let cards = Bundle { html: cards_html, css: card_css(), js: card_js() };
+    let crumbs = crumbs_bundle(&[crumb("/", "Home"), current_crumb("Blog")]);
     let idx = index(crumbs, BLOG_TITLE, BLOG_DESCRIPTION, cards);
     let page_title = format!("{BLOG_TITLE} | {SITE_NAME}");
     let page = layout(&page_title, BLOG_DESCRIPTION, idx);
@@ -151,12 +146,12 @@ fn render_post_page(post: &Post) -> String {
         alt: post.fm.cover.alt.clone(),
         url: post.cover_url(),
     };
-    let body = Fragment {
+    let body = Bundle {
         html: post.body_html.clone(),
         css: String::new(),
         js: String::new(),
     };
-    let crumbs = breadcrumbs(&[
+    let crumbs = crumbs_bundle(&[
         crumb("/", "Home"),
         crumb("/blog/", "Blog"),
         current_crumb(post.fm.title.clone()),
@@ -176,7 +171,11 @@ fn render_post_page(post: &Post) -> String {
     finalize(layout(&post.fm.title, &post.fm.description, art))
 }
 
-fn card_for(post: &Post) -> Fragment {
+fn crumbs_bundle(items: &[BreadcrumbsItem]) -> Bundle {
+    Bundle { html: breadcrumbs(items), css: breadcrumbs_css(), js: breadcrumbs_js() }
+}
+
+fn card_for(post: &Post) -> String {
     card(
         &post.slug,
         post.draft_marker(),

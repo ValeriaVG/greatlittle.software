@@ -1,13 +1,13 @@
 pub mod template;
 
-pub struct Fragment {
+pub struct Bundle {
     pub html: String,
     pub css: String,
     pub js: String,
 }
 
-pub fn finalize(f: Fragment) -> String {
-    let Fragment { mut html, css, js } = f;
+pub fn finalize(b: Bundle) -> String {
+    let Bundle { mut html, css, js } = b;
     if !css.is_empty() {
         let tag = format!("<style>{css}</style>\n");
         if let Some(idx) = html.find("</head>") {
@@ -73,34 +73,34 @@ fn minify(html: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{finalize, Fragment};
+    use super::{finalize, Bundle};
 
     #[test]
     fn injects_style_before_head_close() {
-        let f = Fragment {
+        let b = Bundle {
             html: "<!doctype html><html><head><title>t</title></head><body></body></html>".into(),
             css: "body{color:red}".into(),
             js: String::new(),
         };
-        let out = finalize(f);
+        let out = finalize(b);
         assert!(out.contains("<style>body{color:red}</style></head>"));
     }
 
     #[test]
     fn injects_script_before_body_close() {
-        let f = Fragment {
+        let b = Bundle {
             html: "<!doctype html><html><head></head><body><p>hi</p></body></html>".into(),
             css: String::new(),
             js: "console.log(1)".into(),
         };
-        let out = finalize(f);
+        let out = finalize(b);
         assert!(out.contains("<script>console.log(1)</script></body>"));
     }
 
     #[test]
     fn empty_css_and_js_leaves_html_untouched() {
         let html = "<!doctype html><html><head></head><body></body></html>".to_string();
-        let f = Fragment { html: html.clone(), css: String::new(), js: String::new() };
-        assert_eq!(finalize(f), "<!doctype html><html><head></head><body></body></html>");
+        let b = Bundle { html: html.clone(), css: String::new(), js: String::new() };
+        assert_eq!(finalize(b), "<!doctype html><html><head></head><body></body></html>");
     }
 }

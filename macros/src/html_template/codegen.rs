@@ -9,6 +9,7 @@ pub(crate) fn render(
     ld_path: Option<&str>,
 ) -> String {
     let fn_pascal = to_pascal(fn_name);
+    let has_slots = sig.root_order.iter().any(|(_, k)| *k == Kind::Slot);
 
     let mut out = String::new();
     for (name, fields) in &sig.groups {
@@ -28,29 +29,43 @@ pub(crate) fn render(
         out.push_str("}\n");
     }
 
+    if !has_slots {
+        out.push_str(&format!(
+            "pub fn {fn_name}_css() -> String {{ ::std::fs::read_to_string({}).unwrap_or_default() }}\n",
+            rust_str_lit(css_path),
+        ));
+        out.push_str(&format!(
+            "pub fn {fn_name}_js() -> String {{ ::std::fs::read_to_string({}).unwrap_or_default() }}\n",
+            rust_str_lit(js_path),
+        ));
+    }
+
     let params: Vec<String> = sig.root_order.iter().map(|(n, k)| match k {
         Kind::Group => format!("{n}: &{}{}", fn_pascal, to_pascal(n)),
         Kind::Scalar => format!("{n}: &str"),
-        Kind::Slot => format!("{n}: Fragment"),
+        Kind::Slot => format!("{n}: Bundle"),
         Kind::Repeat => {
             let r = sig.repeats.iter().find(|r| r.coll == *n).expect("repeat");
             format!("{n}: &[{}{}]", fn_pascal, to_pascal(&r.var))
         }
     }).collect();
 
-    out.push_str(&format!("pub fn {fn_name}({}) -> Fragment {{\n", params.join(", ")));
+    let ret_ty = if has_slots { "Bundle" } else { "String" };
+    out.push_str(&format!("pub fn {fn_name}({}) -> {ret_ty} {{\n", params.join(", ")));
     out.push_str(&format!(
         "    let __html_src = ::std::fs::read_to_string({}).unwrap_or_else(|e| panic!(\"{fn_name}: failed to read template: {{e}}\"));\n",
         rust_str_lit(html_path),
     ));
-    out.push_str(&format!(
-        "    let mut __css = ::std::fs::read_to_string({}).unwrap_or_default();\n",
-        rust_str_lit(css_path),
-    ));
-    out.push_str(&format!(
-        "    let mut __js = ::std::fs::read_to_string({}).unwrap_or_default();\n",
-        rust_str_lit(js_path),
-    ));
+    if has_slots {
+        out.push_str(&format!(
+            "    let mut __css = ::std::fs::read_to_string({}).unwrap_or_default();\n",
+            rust_str_lit(css_path),
+        ));
+        out.push_str(&format!(
+            "    let mut __js = ::std::fs::read_to_string({}).unwrap_or_default();\n",
+            rust_str_lit(js_path),
+        ));
+    }
     out.push_str("    let __html_parts = template::parse_template(&__html_src);\n");
     out.push_str("    let mut __vars: ::std::collections::HashMap<String, template::Value> = ::std::collections::HashMap::new();\n");
 
@@ -119,7 +134,11 @@ pub(crate) fn render(
         ));
     }
     out.push_str("    __html.push_str(&template::render(&__html_parts, &mut __vars, template::Escape::Html));\n");
-    out.push_str("    Fragment { html: __html, css: __css, js: __js }\n}\n");
+    if has_slots {
+        out.push_str("    Bundle { html: __html, css: __css, js: __js }\n}\n");
+    } else {
+        out.push_str("    __html\n}\n");
+    }
     out
 }
 

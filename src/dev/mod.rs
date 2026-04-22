@@ -10,7 +10,7 @@ use std::time::{Duration, Instant, SystemTime};
 
 use macros::html_template;
 
-use crate::html::{template, Fragment};
+use crate::html::template;
 use crate::{blog, home, html::finalize};
 
 pub const DEV_OUT: &str = ".dev-dist";
@@ -173,7 +173,7 @@ fn serve(mut stream: TcpStream, out: &Path, version: &AtomicU64) -> std::io::Res
 }
 
 fn inject_reload(html: &str) -> String {
-    let tag = format!("<script>{}</script>", reload_script().js);
+    let tag = format!("<script>{}</script>", reload_script_js());
     if let Some(i) = html.rfind("</body>") {
         let mut out = String::with_capacity(html.len() + tag.len());
         out.push_str(&html[..i]);
@@ -220,7 +220,7 @@ mod tests {
         let out = inject_reload("<html><body>hi</body></html>");
         let script_idx = out.find("<script>").expect("script injected");
         assert!(script_idx < out.find("</body>").unwrap());
-        assert!(out.contains(&reload_script().js));
+        assert!(out.contains(&reload_script_js()));
     }
 
     #[test]
