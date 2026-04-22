@@ -91,8 +91,10 @@ fn prepend(target: &mut String, extra: &str) {
 fn render_index() -> String {
     let rows = build_index_rows(sorted_previews().iter().map(|p| p.path));
     let html = index_page(&rows);
-    let css = index_page_css();
-    let js = index_page_js();
+    let mut css = index_page_css();
+    let mut js = index_page_js();
+    prepend(&mut css, &global_css());
+    prepend(&mut js, &global_js());
     finalize(Bundle { html, css, js })
 }
 

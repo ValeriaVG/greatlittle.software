@@ -1,11 +1,11 @@
 .blog-index {
     max-width: 44rem;
     margin: 0 auto;
-    padding: 3rem 1.5rem 5rem;
+    padding: 3rem var(--space-lg) var(--space-xxl);
 }
-.blog-index-header { margin-bottom: 2.5rem; }
+.blog-index-header { margin-bottom: var(--space-xl); }
 .blog-index-header h1 {
-    font-family: "Big Shoulders Display", sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -15,7 +15,7 @@
 }
 .blog-index-header p {
     margin: 0;
-    color: #3a3a3a;
+    color: var(--color-ink-muted);
     font-size: 1.1rem;
 }
 .post-list {
@@ -23,5 +23,5 @@
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 1.5rem;
+    gap: var(--space-lg);
 }

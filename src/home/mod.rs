@@ -1,11 +1,11 @@
 use macros::html_template;
 
 use crate::html::{template, Bundle};
+use crate::theme::layout;
 
 mod intro;
 
 html_template!(intro, "src/home/intro");
-html_template!(layout, "src/home/layout");
 
 pub fn render() -> Bundle {
     const TITLE: &str = "Great Little Software";

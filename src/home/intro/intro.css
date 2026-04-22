@@ -3,10 +3,10 @@ section {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem;
+    padding: var(--space-lg);
 }
 h1 {
-    font-family: "Big Shoulders Display", sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     text-transform: uppercase;
     text-align: center;
@@ -14,7 +14,7 @@ h1 {
     letter-spacing: 0.01em;
     font-size: clamp(2.75rem, 11vw, 9rem);
     margin: 0;
-    color: #141414;
+    color: var(--color-ink);
 }
 span {
     display: block;
@@ -23,7 +23,7 @@ span {
     width: 92%;
     height: 0.22em;
     margin: 0.18em auto 0;
-    color: #141414;
+    color: var(--color-ink);
     overflow: visible;
 }
 @media (min-width: 768px) {

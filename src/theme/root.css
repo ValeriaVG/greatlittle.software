@@ -1,0 +1,71 @@
+:root {
+    --font-display: "Big Shoulders Display", sans-serif;
+    --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+    --color-ink: #141414;
+    --color-ink-strong: #000;
+    --color-ink-muted: #3a3a3a;
+    --color-ink-subtle: #6a6a6a;
+    --color-divider: #b5ad9f;
+    --color-border: #e4dfd4;
+    --color-surface: #fffdf8;
+    --color-surface-warm: #efe9df;
+    --color-bg: #faf7f2;
+
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2.5rem;
+    --space-xxl: 5rem;
+
+    color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+    --color-ink: #f2ede4;
+    --color-ink-strong: #ffffff;
+    --color-ink-muted: #c8c2b6;
+    --color-ink-subtle: #8e8a82;
+    --color-divider: #4a463e;
+    --color-border: #2a2824;
+    --color-surface: #1b1a17;
+    --color-surface-warm: #242119;
+    --color-bg: #121110;
+
+    color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --color-ink: #f2ede4;
+        --color-ink-strong: #ffffff;
+        --color-ink-muted: #c8c2b6;
+        --color-ink-subtle: #8e8a82;
+        --color-divider: #4a463e;
+        --color-border: #2a2824;
+        --color-surface: #1b1a17;
+        --color-surface-warm: #242119;
+        --color-bg: #121110;
+
+        color-scheme: dark;
+    }
+}
+
+@font-face {
+    font-family: 'Big Shoulders Display';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/assets/fonts/big-shoulders-display-700.woff2') format('woff2');
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+}
+img, svg { max-width: 100%; display: block; }

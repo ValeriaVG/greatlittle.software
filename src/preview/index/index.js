@@ -8,6 +8,45 @@
 
     const STORAGE_KEY = 'preview-device';
     const COLLAPSED_KEY = 'preview-collapsed-groups';
+    const THEME_KEY = 'preview-theme';
+
+    const themeToggle = document.querySelector('.preview-theme-toggle');
+
+    function readTheme() {
+        try { return localStorage.getItem(THEME_KEY) || ''; } catch (_) { return ''; }
+    }
+
+    function writeTheme(value) {
+        try {
+            if (value) localStorage.setItem(THEME_KEY, value);
+            else localStorage.removeItem(THEME_KEY);
+        } catch (_) {}
+    }
+
+    function resolvedTheme() {
+        const stored = readTheme();
+        if (stored === 'light' || stored === 'dark') return stored;
+        return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const frameDoc = frame.contentDocument;
+        if (frameDoc && frameDoc.documentElement) {
+            frameDoc.documentElement.setAttribute('data-theme', theme);
+        }
+    }
+
+    applyTheme(resolvedTheme());
+    frame.addEventListener('load', () => applyTheme(resolvedTheme()));
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const next = resolvedTheme() === 'dark' ? 'light' : 'dark';
+            writeTheme(next);
+            applyTheme(next);
+        });
+    }
 
     const sidebarList = document.querySelector('.preview-sidebar .preview-list');
     const groupNodes = Array.from(sidebarList.querySelectorAll('.preview-group'));

@@ -1,10 +1,10 @@
 .breadcrumbs {
-    margin: 1.5rem auto 1.5rem;
-    padding: 0 1.5rem;
+    margin: var(--space-lg) auto;
+    padding: 0 var(--space-lg);
     font-size: 0.8125rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #6a6a6a;
+    color: var(--color-ink-subtle);
     max-width: 44rem;
 }
 .breadcrumbs ol {
@@ -31,15 +31,15 @@
 .breadcrumbs li + li::before {
     content: "/";
     margin-right: 0.4em;
-    color: #b5ad9f;
+    color: var(--color-divider);
 }
 .breadcrumbs a {
-    color: #141414;
+    color: var(--color-ink);
     text-decoration: none;
 }
 .breadcrumbs a:hover { text-decoration: underline; }
 .breadcrumbs [aria-current="page"] {
-    color: #6a6a6a;
+    color: var(--color-ink-subtle);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

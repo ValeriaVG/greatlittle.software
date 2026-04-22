@@ -6,8 +6,8 @@ use macros::html_template;
 use pulldown_cmark::{html as cmark_html, Options, Parser};
 use serde::Deserialize;
 
-use crate::home::layout;
 use crate::html::{finalize, template, Bundle};
+use crate::theme::layout;
 
 mod article;
 mod breadcrumbs;
