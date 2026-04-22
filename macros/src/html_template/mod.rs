@@ -6,12 +6,37 @@ mod parse;
 
 use parse::{parse_template, Cond, Part};
 
+// Resolves the base path (without extension) used to find template files.
+// Tries, in order: the raw path as given, {dir}/{dirname} inside a folder,
+// and {dir}/index inside a folder. Returns the first whose .html exists,
+// or the raw path as a fallback so errors point at the original location.
+fn resolve_base(raw: &PathBuf) -> PathBuf {
+    let candidates = if raw.is_dir() {
+        let name = raw.file_name().map(|s| s.to_owned());
+        let mut v = Vec::new();
+        if let Some(n) = name {
+            v.push(raw.join(&n));
+        }
+        v.push(raw.join("index"));
+        v
+    } else {
+        vec![raw.clone()]
+    };
+    for c in &candidates {
+        if c.with_extension("html").is_file() {
+            return c.clone();
+        }
+    }
+    candidates.into_iter().next().unwrap_or_else(|| raw.clone())
+}
+
 pub(crate) fn expand(input: TokenStream) -> TokenStream {
     let (fn_name, path) = parse_args(input);
 
     let manifest = std::env::var("CARGO_MANIFEST_DIR")
         .expect("CARGO_MANIFEST_DIR not set");
-    let base = PathBuf::from(&manifest).join(&path);
+    let raw = PathBuf::from(&manifest).join(&path);
+    let base = resolve_base(&raw);
     let html_path = base.with_extension("html");
     let css_path = base.with_extension("css");
     let js_path = base.with_extension("js");

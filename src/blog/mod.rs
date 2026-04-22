@@ -12,6 +12,7 @@ use crate::html::{finalize, template, Bundle};
 mod article;
 mod breadcrumbs;
 mod card;
+mod index;
 
 const SITE_URL: &str = "https://greatlittle.software";
 const SITE_NAME: &str = "Great Little Software";
