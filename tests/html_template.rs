@@ -1,4 +1,4 @@
-use greatlittle_software::html::Fragment;
+use greatlittle_software::html::{template, Fragment};
 use macros::html_template;
 
 html_template!(render_example, "tests/fixtures/example.html");
@@ -68,6 +68,22 @@ fn empty_values_render_as_empty_strings() {
     assert!(out.contains("src=\"\""));
     assert!(out.contains("<h1></h1>"));
     assert!(out.contains("<p></p>"));
+}
+
+#[test]
+fn for_loop_renders_each_item() {
+    html_template!(render_looped, "tests/fixtures/looped.html");
+    let items = vec![
+        RenderLoopedItem { href: "/".into(), label: "Home".into(), current: String::new() },
+        RenderLoopedItem { href: "/blog/".into(), label: "Blog".into(), current: String::new() },
+        RenderLoopedItem { href: String::new(), label: "Post".into(), current: "page".into() },
+    ];
+    let out = render_looped(&items).html;
+    assert!(out.contains("<a href=\"/\">Home</a>"));
+    assert!(out.contains("<a href=\"/blog/\">Blog</a>"));
+    assert!(out.contains("<span>Post</span>"));
+    assert!(!out.contains("<a href=\"\">"));
+    assert_eq!(out.matches("<li>").count(), 3);
 }
 
 #[test]

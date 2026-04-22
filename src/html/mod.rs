@@ -1,3 +1,5 @@
+pub mod template;
+
 pub struct Fragment {
     pub html: String,
     pub css: String,

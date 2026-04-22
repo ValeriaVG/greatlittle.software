@@ -4,34 +4,79 @@ use std::path::{Path, PathBuf};
 
 use macros::html_template;
 use pulldown_cmark::{html as cmark_html, Options, Parser};
+use serde::Deserialize;
 
 use crate::home::layout;
-use crate::html::{escape_html, finalize, json_escape, Fragment};
+use crate::html::{finalize, template, Fragment};
 
 const SITE_URL: &str = "https://greatlittle.software";
 const SITE_NAME: &str = "Great Little Software";
+const BLOG_TITLE: &str = "Blog";
+const BLOG_DESCRIPTION: &str = "Stories, notes and field reports about indie software.";
 
+// The `article` macro also picks up `article.ld.json` and emits it as JSON-LD
+// before the article body. Keep the two in sync when adding fields.
 html_template!(article, "src/blog/article");
+html_template!(breadcrumbs, "src/blog/breadcrumbs");
 html_template!(index, "src/blog/index");
 html_template!(card, "src/blog/card");
 
+#[derive(Default, Deserialize)]
+#[serde(default)]
+struct Cover {
+    src: String,
+    alt: String,
+}
+
+#[derive(Default, Deserialize)]
+#[serde(default)]
+struct FrontMatter {
+    title: String,
+    description: String,
+    keywords: Vec<String>,
+    is_draft: bool,
+    created_at: String,
+    updated_at: String,
+    author: String,
+    cover: Cover,
+}
+
 pub struct Post {
-    pub slug: String,
-    pub dir: PathBuf,
-    pub title: String,
-    pub title_raw: String,
-    pub description: String,
-    pub description_raw: String,
-    pub keywords: Vec<String>,
-    pub is_draft: bool,
-    pub created_at: String,
-    pub updated_at: String,
-    pub author: String,
-    pub date_display: String,
-    pub cover_src: String,
-    pub cover_src_raw: String,
-    pub cover_alt: String,
-    pub body_html: String,
+    slug: String,
+    dir: PathBuf,
+    fm: FrontMatter,
+    date_display: String,
+    body_html: String,
+}
+
+impl Post {
+    fn canonical(&self) -> String {
+        format!("{SITE_URL}/blog/{}/", self.slug)
+    }
+    fn cover_url(&self) -> String {
+        if self.fm.cover.src.is_empty() {
+            String::new()
+        } else {
+            format!("{SITE_URL}/blog/{}/{}", self.slug, self.fm.cover.src)
+        }
+    }
+    fn author(&self) -> String {
+        if self.fm.author.is_empty() { SITE_NAME.into() } else { self.fm.author.clone() }
+    }
+    fn updated(&self) -> &str {
+        if self.fm.updated_at.is_empty() { &self.fm.created_at } else { &self.fm.updated_at }
+    }
+    fn draft_marker(&self) -> &'static str {
+        if self.fm.is_draft { "draft" } else { "" }
+    }
+}
+
+fn crumb(href: &str, label: impl Into<String>) -> BreadcrumbsItem {
+    BreadcrumbsItem { href: href.into(), label: label.into(), current: String::new() }
+}
+
+fn current_crumb(label: impl Into<String>) -> BreadcrumbsItem {
+    BreadcrumbsItem { href: String::new(), label: label.into(), current: "page".into() }
 }
 
 pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::Result<Vec<String>> {
@@ -55,105 +100,93 @@ pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::
             continue;
         }
         let raw = fs::read_to_string(&index_md)?;
-        let post = parse_post(&slug, dir, &raw);
-        if post.is_draft && !include_drafts {
+        let post = parse_post(slug, dir, &raw);
+        if post.fm.is_draft && !include_drafts {
             continue;
         }
         posts.push(post);
     }
-    posts.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+    posts.sort_by(|a, b| b.fm.created_at.cmp(&a.fm.created_at));
 
     let mut written = Vec::new();
+    let mut cards_html = String::new();
+    let mut cards_css = String::new();
     for post in &posts {
         let post_out = blog_out.join(&post.slug);
         fs::create_dir_all(&post_out)?;
         copy_assets(&post.dir, &post_out)?;
 
-        let canonical = format!("{SITE_URL}/blog/{}/", post.slug);
-        let image = if post.cover_src_raw.is_empty() {
-            String::new()
-        } else {
-            format!("{SITE_URL}/blog/{}/{}", post.slug, post.cover_src_raw)
-        };
-        let author = if post.author.is_empty() { SITE_NAME.to_string() } else { post.author.clone() };
-        let updated = if post.updated_at.is_empty() { &post.created_at } else { &post.updated_at };
-        let keywords = post.keywords.join(", ");
-
-        let ld_title = json_escape(&post.title_raw);
-        let ld_description = json_escape(&post.description_raw);
-        let ld_image = json_escape(&image);
-        let ld_published = json_escape(&post.created_at);
-        let ld_modified = json_escape(updated);
-        let ld_url = json_escape(&canonical);
-        let ld_keywords = json_escape(&keywords);
-        let ld_author = json_escape(&author);
-
-        let body = Fragment {
-            html: post.body_html.clone(),
-            css: String::new(),
-            js: String::new(),
-        };
-        let draft_marker = if post.is_draft { "draft" } else { "" };
-        let art = article(
-            &ld_title,
-            &ld_description,
-            &ld_image,
-            &ld_published,
-            &ld_modified,
-            &ld_url,
-            &ld_keywords,
-            &ld_author,
-            draft_marker,
-            &post.created_at,
-            &post.date_display,
-            &post.title,
-            &post.description,
-            &post.cover_src,
-            &post.cover_alt,
-            body,
-        );
-        let page = layout(&post.title, &post.description, art);
-        let html = finalize(page);
         let out = post_out.join("index.html");
-        fs::write(&out, html)?;
+        fs::write(&out, render_post_page(post))?;
         written.push(out.display().to_string());
-    }
 
-    let mut cards_html = String::new();
-    let mut cards_css = String::new();
-    for post in &posts {
-        let draft_marker = if post.is_draft { "draft" } else { "" };
-        let c = card(
-            &post.slug,
-            draft_marker,
-            &post.cover_src,
-            &post.cover_alt,
-            &post.created_at,
-            &post.date_display,
-            &post.title,
-            &post.description,
-        );
-        cards_html.push_str(&c.html);
-        if !c.css.is_empty() && cards_css.is_empty() {
+        let c = card_for(post);
+        if cards_css.is_empty() {
             cards_css = c.css;
         }
+        cards_html.push_str(&c.html);
     }
-    let cards = Fragment {
-        html: cards_html,
-        css: cards_css,
-        js: String::new(),
-    };
-    const BLOG_TITLE: &str = "Blog";
-    const BLOG_DESCRIPTION: &str = "Stories, notes and field reports about indie software.";
-    let idx = index(BLOG_TITLE, BLOG_DESCRIPTION, cards);
+
+    let cards = Fragment { html: cards_html, css: cards_css, js: String::new() };
+    let crumbs = breadcrumbs(&[crumb("/", "Home"), current_crumb("Blog")]);
+    let idx = index(crumbs, BLOG_TITLE, BLOG_DESCRIPTION, cards);
     let page_title = format!("{BLOG_TITLE} | {SITE_NAME}");
     let page = layout(&page_title, BLOG_DESCRIPTION, idx);
-    let html = finalize(page);
     let out = blog_out.join("index.html");
-    fs::write(&out, html)?;
+    fs::write(&out, finalize(page))?;
     written.push(out.display().to_string());
 
     Ok(written)
+}
+
+fn render_post_page(post: &Post) -> String {
+    let article_data = ArticleArticle {
+        title: post.fm.title.clone(),
+        url: post.canonical(),
+        description: post.fm.description.clone(),
+        author: post.author(),
+    };
+    let cover_data = ArticleCover {
+        src: post.fm.cover.src.clone(),
+        alt: post.fm.cover.alt.clone(),
+        url: post.cover_url(),
+    };
+    let body = Fragment {
+        html: post.body_html.clone(),
+        css: String::new(),
+        js: String::new(),
+    };
+    let crumbs = breadcrumbs(&[
+        crumb("/", "Home"),
+        crumb("/blog/", "Blog"),
+        current_crumb(post.fm.title.clone()),
+    ]);
+    let keywords = post.fm.keywords.join(", ");
+    let art = article(
+        crumbs,
+        post.draft_marker(),
+        &post.fm.created_at,
+        &post.date_display,
+        &article_data,
+        &cover_data,
+        body,
+        post.updated(),
+        &keywords,
+    );
+    finalize(layout(&post.fm.title, &post.fm.description, art))
+}
+
+fn card_for(post: &Post) -> Fragment {
+    card(
+        &post.slug,
+        post.draft_marker(),
+        &post.fm.cover.src,
+        &post.fm.cover.alt,
+        &post.fm.created_at,
+        &post.date_display,
+        &post.fm.title,
+        &post.fm.description,
+    )
 }
 
 fn copy_assets(src: &Path, dst: &Path) -> io::Result<()> {
@@ -169,29 +202,13 @@ fn copy_assets(src: &Path, dst: &Path) -> io::Result<()> {
     Ok(())
 }
 
-fn parse_post(slug: &str, dir: PathBuf, raw: &str) -> Post {
-    let (fm, body_md) = split_frontmatter(raw);
-    let fm = parse_frontmatter(fm);
+fn parse_post(slug: String, dir: PathBuf, raw: &str) -> Post {
+    let (fm_yaml, body_md) = split_frontmatter(raw);
+    let fm: FrontMatter = serde_yaml::from_str(fm_yaml)
+        .unwrap_or_else(|e| panic!("invalid frontmatter in {slug}: {e}"));
     let body_html = render_markdown(body_md);
     let date_display = format_iso_date(&fm.created_at);
-    Post {
-        slug: slug.to_string(),
-        dir,
-        title: escape_html(&fm.title),
-        title_raw: fm.title.clone(),
-        description: escape_html(&fm.description),
-        description_raw: fm.description.clone(),
-        keywords: fm.keywords,
-        is_draft: fm.is_draft,
-        date_display: escape_html(&date_display),
-        created_at: escape_html(&fm.created_at),
-        updated_at: escape_html(&fm.updated_at),
-        author: fm.author.clone(),
-        cover_src: escape_html(&fm.cover_src),
-        cover_src_raw: fm.cover_src.clone(),
-        cover_alt: escape_html(&fm.cover_alt),
-        body_html,
-    }
+    Post { slug, dir, fm, date_display, body_html }
 }
 
 fn split_frontmatter(raw: &str) -> (&str, &str) {
@@ -199,9 +216,7 @@ fn split_frontmatter(raw: &str) -> (&str, &str) {
         .strip_prefix("---\n")
         .or_else(|| raw.strip_prefix("---\r\n"))
         .expect("missing frontmatter start `---`");
-    let end = rest
-        .find("\n---")
-        .expect("missing frontmatter end `---`");
+    let end = rest.find("\n---").expect("missing frontmatter end `---`");
     let fm = &rest[..end];
     let after = &rest[end + 4..];
     let body = after
@@ -209,91 +224,6 @@ fn split_frontmatter(raw: &str) -> (&str, &str) {
         .or_else(|| after.strip_prefix("\r\n"))
         .unwrap_or(after);
     (fm, body)
-}
-
-#[derive(Default)]
-struct FrontMatter {
-    title: String,
-    description: String,
-    keywords: Vec<String>,
-    is_draft: bool,
-    created_at: String,
-    updated_at: String,
-    author: String,
-    cover_src: String,
-    cover_alt: String,
-}
-
-fn parse_frontmatter(yaml: &str) -> FrontMatter {
-    let mut fm = FrontMatter::default();
-    let mut group: Option<String> = None;
-    for line in yaml.lines() {
-        if line.trim().is_empty() {
-            continue;
-        }
-        let indented = line.starts_with(' ') || line.starts_with('\t');
-        if indented {
-            if let Some(g) = &group {
-                if let Some((k, v)) = split_kv(line.trim_start()) {
-                    match (g.as_str(), k.as_str()) {
-                        ("cover", "src") => fm.cover_src = unquote(&v),
-                        ("cover", "alt") => fm.cover_alt = unquote(&v),
-                        _ => {}
-                    }
-                }
-            }
-            continue;
-        }
-        group = None;
-        let Some((k, v)) = split_kv(line) else { continue };
-        let v_trim = v.trim();
-        match k.as_str() {
-            "title" => fm.title = unquote(v_trim),
-            "description" => fm.description = unquote(v_trim),
-            "is_draft" => fm.is_draft = v_trim == "true",
-            "created_at" => fm.created_at = unquote(v_trim),
-            "updated_at" => fm.updated_at = unquote(v_trim),
-            "author" => fm.author = unquote(v_trim),
-            "keywords" => fm.keywords = parse_array(v_trim),
-            "cover" => {
-                if v_trim.is_empty() {
-                    group = Some("cover".to_string());
-                }
-            }
-            _ => {}
-        }
-    }
-    fm
-}
-
-fn split_kv(line: &str) -> Option<(String, String)> {
-    let colon = line.find(':')?;
-    let k = line[..colon].trim().to_string();
-    let v = line[colon + 1..].trim().to_string();
-    Some((k, v))
-}
-
-fn unquote(s: &str) -> String {
-    let s = s.trim();
-    if s.len() >= 2 {
-        let bytes = s.as_bytes();
-        if (bytes[0] == b'"' && bytes[s.len() - 1] == b'"')
-            || (bytes[0] == b'\'' && bytes[s.len() - 1] == b'\'')
-        {
-            return s[1..s.len() - 1].to_string();
-        }
-    }
-    s.to_string()
-}
-
-fn parse_array(s: &str) -> Vec<String> {
-    let s = s.trim();
-    let inner = s.strip_prefix('[').and_then(|s| s.strip_suffix(']')).unwrap_or(s);
-    inner
-        .split(',')
-        .map(|item| unquote(item.trim()))
-        .filter(|item| !item.is_empty())
-        .collect()
 }
 
 fn render_markdown(md: &str) -> String {
@@ -348,19 +278,28 @@ mod tests {
     #[test]
     fn parses_nested_cover() {
         let y = "title: \"T\"\ncover:\n    src: a.png\n    alt: alt text\n";
-        let fm = parse_frontmatter(y);
+        let fm: FrontMatter = serde_yaml::from_str(y).unwrap();
         assert_eq!(fm.title, "T");
-        assert_eq!(fm.cover_src, "a.png");
-        assert_eq!(fm.cover_alt, "alt text");
+        assert_eq!(fm.cover.src, "a.png");
+        assert_eq!(fm.cover.alt, "alt text");
+    }
+
+    #[test]
+    fn parses_keyword_array() {
+        let y = "keywords: [a, b, \"c d\"]\n";
+        let fm: FrontMatter = serde_yaml::from_str(y).unwrap();
+        assert_eq!(fm.keywords, vec!["a", "b", "c d"]);
+    }
+
+    #[test]
+    fn ignores_unknown_fields() {
+        let y = "title: T\nlink: https://example.com/\n";
+        let fm: FrontMatter = serde_yaml::from_str(y).unwrap();
+        assert_eq!(fm.title, "T");
     }
 
     #[test]
     fn formats_iso_date() {
         assert_eq!(format_iso_date("2026-04-19T16:15:24Z"), "April 19, 2026");
-    }
-
-    #[test]
-    fn parses_keyword_array() {
-        assert_eq!(parse_array("[a, b, \"c d\"]"), vec!["a", "b", "c d"]);
     }
 }

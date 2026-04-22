@@ -10,7 +10,7 @@ use std::time::{Duration, Instant, SystemTime};
 
 use macros::html_template;
 
-use crate::html::Fragment;
+use crate::html::{template, Fragment};
 use crate::{blog, home, html::finalize};
 
 pub const DEV_OUT: &str = ".dev-dist";

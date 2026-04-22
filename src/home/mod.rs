@@ -1,6 +1,6 @@
 use macros::html_template;
 
-use crate::html::Fragment;
+use crate::html::{template, Fragment};
 
 html_template!(intro, "src/home/intro");
 html_template!(layout, "src/home/layout");

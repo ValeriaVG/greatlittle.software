@@ -1,9 +1,11 @@
 pub(crate) enum Part {
+    #[allow(dead_code)]
     Text(String),
     Field(String, String),
     Scalar(String),
     Slot(String),
     If(Cond, Vec<Part>),
+    For(String, String, Vec<Part>),
 }
 
 #[derive(Clone)]
@@ -15,6 +17,9 @@ pub(crate) enum Cond {
 const IF_OPEN: &str = "<!--if ";
 const IF_CLOSE: &str = "<!--/if-->";
 const IF_OPEN_END: &str = "-->";
+const FOR_OPEN: &str = "<!--for ";
+const FOR_CLOSE: &str = "<!--/for-->";
+const BLOCK_OPEN_END: &str = "-->";
 
 pub(crate) fn parse_template(template: &str) -> Vec<Part> {
     let mut parts = Vec::new();
@@ -43,6 +48,25 @@ pub(crate) fn parse_template(template: &str) -> Vec<Part> {
             }
             parts.push(Part::Slot(name));
             i = after;
+            text_start = i;
+            continue;
+        }
+        if template[i..].starts_with(FOR_OPEN) {
+            let name_start = i + FOR_OPEN.len();
+            let open_end_rel = template[name_start..]
+                .find(BLOCK_OPEN_END)
+                .unwrap_or_else(|| panic!("unclosed `<!--for ...` comment"));
+            let decl = template[name_start..name_start + open_end_rel].trim();
+            let (var, coll) = parse_for_decl(decl);
+            let body_start = name_start + open_end_rel + BLOCK_OPEN_END.len();
+            let (body_end, close_end) = find_for_close(template, body_start)
+                .unwrap_or_else(|| panic!("missing `<!--/for-->` for `{var}`"));
+            if text_start < i {
+                parts.push(Part::Text(template[text_start..i].to_string()));
+            }
+            let body_parts = parse_template(&template[body_start..body_end]);
+            parts.push(Part::For(var, coll, body_parts));
+            i = close_end;
             text_start = i;
             continue;
         }
@@ -123,6 +147,41 @@ fn find_if_close(template: &str, from: usize) -> Option<(usize, usize)> {
         i += 1;
     }
     None
+}
+
+fn find_for_close(template: &str, from: usize) -> Option<(usize, usize)> {
+    let mut depth = 1usize;
+    let mut i = from;
+    while i < template.len() {
+        if template[i..].starts_with(FOR_CLOSE) {
+            depth -= 1;
+            if depth == 0 {
+                return Some((i, i + FOR_CLOSE.len()));
+            }
+            i += FOR_CLOSE.len();
+            continue;
+        }
+        if template[i..].starts_with(FOR_OPEN) {
+            let rel = template[i + FOR_OPEN.len()..].find(BLOCK_OPEN_END)?;
+            depth += 1;
+            i += FOR_OPEN.len() + rel + BLOCK_OPEN_END.len();
+            continue;
+        }
+        i += 1;
+    }
+    None
+}
+
+fn parse_for_decl(s: &str) -> (String, String) {
+    let mut it = s.split_whitespace();
+    let var = it.next().unwrap_or_else(|| panic!("`<!--for-->` missing variable name"));
+    let kw = it.next().unwrap_or_else(|| panic!("`<!--for-->` missing `in`"));
+    if kw != "in" { panic!("`<!--for {var} ...-->`: expected `in`, got `{kw}`"); }
+    let coll = it.next().unwrap_or_else(|| panic!("`<!--for-->` missing collection"));
+    if it.next().is_some() { panic!("`<!--for {var} in {coll} ...-->`: unexpected trailing tokens"); }
+    if !is_ident(var) { panic!("invalid loop variable `{var}`"); }
+    if !is_ident(coll) { panic!("invalid loop collection `{coll}`"); }
+    (var.to_string(), coll.to_string())
 }
 
 fn parse_cond(name: &str) -> Cond {

@@ -1,38 +1,19 @@
+<slot name="breadcrumbs"></slot>
 <article class="post">
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        "headline": "{ld_title}",
-        "description": "{ld_description}",
-        "image": "{ld_image}",
-        "datePublished": "{ld_published}",
-        "dateModified": "{ld_modified}",
-        "inLanguage": "en",
-        "url": "{ld_url}",
-        "keywords": "{ld_keywords}",
-        "author": {"@type": "Person", "name": "{ld_author}"},
-        "publisher": {"@type": "Organization", "name": "Great Little Software", "url": "https://greatlittle.software"},
-        "mainEntityOfPage": {"@type": "WebPage", "@id": "{ld_url}"}
-    }
-    </script>
     <header class="post-header">
         <!--if is_draft-->
         <p class="post-draft">Draft preview</p>
         <!--/if-->
         <p class="post-date"><time datetime="{date_iso}">{date_display}</time></p>
-        <h1 class="post-title">{title}</h1>
-        <p class="post-lead">{description}</p>
+        <h1 class="post-title">{article.title}</h1>
+        <p class="post-author">by {article.author}</p>
     </header>
-    <!--if cover_src-->
+    <!--if cover.src-->
     <figure class="post-cover">
-        <img src="{cover_src}" alt="{cover_alt}" />
+        <img src="{cover.src}" alt="{cover.alt}" />
     </figure>
     <!--/if-->
     <section class="prose">
         <slot name="body"></slot>
     </section>
-    <footer class="post-footer">
-        <a class="back" href="/blog/">Back to all articles</a>
-    </footer>
 </article>

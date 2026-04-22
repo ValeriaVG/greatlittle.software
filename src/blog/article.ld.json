@@ -1,0 +1,27 @@
+{
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://greatlittle.software/"},
+                {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://greatlittle.software/blog/"},
+                {"@type": "ListItem", "position": 3, "name": "{article.title}", "item": "{article.url}"}
+            ]
+        },
+        {
+            "@type": "BlogPosting",
+            "headline": "{article.title}",
+            "description": "{article.description}",
+            "image": "{cover.url}",
+            "datePublished": "{date_iso}",
+            "dateModified": "{date_modified}",
+            "inLanguage": "en",
+            "url": "{article.url}",
+            "keywords": "{keywords}",
+            "author": {"@type": "Person", "name": "{article.author}"},
+            "publisher": {"@type": "Organization", "name": "Great Little Software", "url": "https://greatlittle.software"},
+            "mainEntityOfPage": {"@type": "WebPage", "@id": "{article.url}"}
+        }
+    ]
+}
