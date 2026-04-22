@@ -4,7 +4,7 @@ use std::path::PathBuf;
 mod parse;
 mod codegen;
 
-use parse::{parse_template, Part};
+use parse::{parse_template, Cond, Part};
 
 pub(crate) fn expand(input: TokenStream) -> TokenStream {
     let (fn_name, path) = parse_args(input);
@@ -50,44 +50,59 @@ pub(crate) struct Signature {
 pub(crate) enum Kind { Scalar, Group, Slot }
 
 fn collect_signature(parts: &[Part]) -> Signature {
-    let mut groups: Vec<(String, Vec<String>)> = Vec::new();
+    let mut sig = Signature { groups: Vec::new(), slots: Vec::new(), root_order: Vec::new() };
     let mut scalars: Vec<String> = Vec::new();
-    let mut slots: Vec<String> = Vec::new();
-    let mut root_order: Vec<(String, Kind)> = Vec::new();
+    walk(parts, &mut sig, &mut scalars);
+    sig
+}
+
+fn walk(parts: &[Part], sig: &mut Signature, scalars: &mut Vec<String>) {
     for part in parts {
         match part {
-            Part::Field(g, f) => {
-                if scalars.contains(g) { panic!("`{g}` used as both scalar and group"); }
-                if slots.contains(g) { panic!("`{g}` used as both slot and group"); }
-                if let Some(e) = groups.iter_mut().find(|(n, _)| n == g) {
-                    if !e.1.contains(f) { e.1.push(f.clone()); }
-                } else {
-                    groups.push((g.clone(), vec![f.clone()]));
+            Part::Field(g, f) => register_field(sig, scalars, g, f),
+            Part::Scalar(s) => register_scalar(sig, scalars, s),
+            Part::Slot(s) => register_slot(sig, scalars, s),
+            Part::If(cond, body) => {
+                match cond {
+                    Cond::Scalar(s) => register_scalar(sig, scalars, s),
+                    Cond::Field(g, f) => register_field(sig, scalars, g, f),
                 }
-                if !root_order.iter().any(|(n, _)| n == g) {
-                    root_order.push((g.clone(), Kind::Group));
-                }
-            }
-            Part::Scalar(s) => {
-                if groups.iter().any(|(n, _)| n == s) { panic!("`{s}` used as both group and scalar"); }
-                if slots.contains(s) { panic!("`{s}` used as both slot and scalar"); }
-                if !scalars.contains(s) { scalars.push(s.clone()); }
-                if !root_order.iter().any(|(n, _)| n == s) {
-                    root_order.push((s.clone(), Kind::Scalar));
-                }
-            }
-            Part::Slot(s) => {
-                if groups.iter().any(|(n, _)| n == s) { panic!("`{s}` used as both group and slot"); }
-                if scalars.contains(s) { panic!("`{s}` used as both scalar and slot"); }
-                if !slots.contains(s) { slots.push(s.clone()); }
-                if !root_order.iter().any(|(n, _)| n == s) {
-                    root_order.push((s.clone(), Kind::Slot));
-                }
+                walk(body, sig, scalars);
             }
             Part::Text(_) => {}
         }
     }
-    Signature { groups, slots, root_order }
+}
+
+fn register_field(sig: &mut Signature, scalars: &[String], g: &str, f: &str) {
+    if scalars.iter().any(|n| n == g) { panic!("`{g}` used as both scalar and group"); }
+    if sig.slots.iter().any(|n| n == g) { panic!("`{g}` used as both slot and group"); }
+    if let Some(e) = sig.groups.iter_mut().find(|(n, _)| n == g) {
+        if !e.1.iter().any(|n| n == f) { e.1.push(f.to_string()); }
+    } else {
+        sig.groups.push((g.to_string(), vec![f.to_string()]));
+    }
+    if !sig.root_order.iter().any(|(n, _)| n == g) {
+        sig.root_order.push((g.to_string(), Kind::Group));
+    }
+}
+
+fn register_scalar(sig: &mut Signature, scalars: &mut Vec<String>, s: &str) {
+    if sig.groups.iter().any(|(n, _)| n == s) { panic!("`{s}` used as both group and scalar"); }
+    if sig.slots.iter().any(|n| n == s) { panic!("`{s}` used as both slot and scalar"); }
+    if !scalars.iter().any(|n| n == s) { scalars.push(s.to_string()); }
+    if !sig.root_order.iter().any(|(n, _)| n == s) {
+        sig.root_order.push((s.to_string(), Kind::Scalar));
+    }
+}
+
+fn register_slot(sig: &mut Signature, scalars: &[String], s: &str) {
+    if sig.groups.iter().any(|(n, _)| n == s) { panic!("`{s}` used as both group and slot"); }
+    if scalars.iter().any(|n| n == s) { panic!("`{s}` used as both scalar and slot"); }
+    if !sig.slots.iter().any(|n| n == s) { sig.slots.push(s.to_string()); }
+    if !sig.root_order.iter().any(|(n, _)| n == s) {
+        sig.root_order.push((s.to_string(), Kind::Slot));
+    }
 }
 
 fn parse_args(input: TokenStream) -> (String, String) {

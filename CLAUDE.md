@@ -1,47 +1,26 @@
 # Great Little Software
 
-Rust static site generator.
-Components are Rust functions that return `Fragment { html, css, js }`.
-Composition is plain function calls; child components plug into parents via `<slot>` elements in the HTML template.
+This project is a site that uses custom Rust static site generator.
+`src` contains layout and site generation logic and `content` markdown content.
+Your goal is to support its development while ruthlessly prioritising simplicity, locality, flow, optimization of daily operations and end user focus.
 
-## Authoring a component
-
-A component is a `.html` file with optional sibling `.css` and `.js`, registered via the `html_template!` proc macro:
-
-```rust
-use macros::html_template;
-use crate::html::Fragment;
-
-html_template!(intro,  "src/home/intro");
-html_template!(layout, "src/home/layout");
-```
-
-Each call generates `fn <name>(...) -> Fragment`. Signature comes from the template:
-- `{title}` → `title: &str` scalar arg
-- `{image.src}` → `image: &RenderIntroImage` struct arg (fields become `String`)
-- `<slot name="children"></slot>` → `children: Fragment` arg (its `css`/`js` bubble up into the returned fragment)
-
-Repeated placeholders/slots with the same name share one argument. Same name cannot be used as two different kinds.
-
-## Page assembly
-
-`src/main.rs` calls the root component and passes the returned `Fragment` to `html::finalize`, which inlines bubbled-up CSS as `<style>` before `</head>` and JS as `<script>` before `</body>`. No other stitching layer exists.
-
-CSS has no automatic scoping — authors write plain selectors and namespace by hand if needed.
-
-## Structure
-- `./content` — markdown articles and assets (not yet wired into generation)
-- `./src` — generation entry point, shared runtime (`src/html`), and per-page modules (e.g. `src/home`)
-- `./macros` — proc-macro crate providing `html_template!`
+## Templating
+Every html page is composed out of a Fragment that contains html and optional css and js partials.
+Partial html, css or js is fully standard html, css and js with `{variable}` in the code where variables need to me injected.
+Nested fragments are placed into a `<slot>` in the template and conditional rendering is done via comment `<!--if variable-->...<!--/if-->`.
 
 ## Commands
 Uses justfile. Basics:
-- `just test`
-- `just build`
+- `just test` to run unit tests
+- `just build` to generate static website
 
 ## Guidelines
+- Keep code simple and localised, meaning that the code that serves the same purpose should be grouped together in a feature folder
 - Keep files under 500 lines
-- Group code by domain scope: e.g. `src/home` holds everything needed to build the home page; `src/html` holds shared page-generation logic
-- Prefer extending `html_template!` over introducing a second templating path
 - Do not use emdashes, emojis and other overused LLM telltales
-- Be precise and consice
+- Use comments only when the behaviour of a function or component is not obvious from its name
+- Use semantic html whenever possible
+- Never hardcode html, even partial in the Rust code (except for testing), use partial html files instead
+- Never hardcode js or css, even partial in the Rust or HTML code (except for testing), use partial js or css files instead
+- For Rust code write types/interfaces first, then a test, then functionality
+

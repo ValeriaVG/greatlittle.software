@@ -9,6 +9,9 @@ build:
 serve port="8000":
     python3 -m http.server {{port}} --directory dist
 
+dev port="8000":
+    cargo run -- dev {{port}}
+
 deploy: build
     npx wrangler deploy
 

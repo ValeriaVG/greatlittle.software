@@ -1,9 +1,11 @@
 ---
 title: "Psikat: a tracker-like DAW"
-description:
-keywords: [music, webapp, tracker, daw]
+description: "What do cats, 1980s, web development, a DAW and a tracker have in common?"
+keywords: [music, webapp, tracker, daw, psikat, holoflash, michael palace, wasm, rust, browser daw]
+author: Valeria Viana Gusmao
 is_draft: true
 created_at: 2026-04-19T16:15:24Z
+updated_at: 2026-04-22T00:00:00Z
 link: https://psikat.com/
 cover:
     src: psikat_com.png

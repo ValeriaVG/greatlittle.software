@@ -1,0 +1,17 @@
+<li class="post-card">
+    <a href="/blog/{slug}/">
+        <!--if is_draft-->
+        <span class="post-card-draft">Draft</span>
+        <!--/if-->
+        <!--if cover_src-->
+        <figure class="post-card-cover">
+            <img src="/blog/{slug}/{cover_src}" alt="{cover_alt}" loading="lazy" />
+        </figure>
+        <!--/if-->
+        <div class="post-card-body">
+            <p class="post-card-date"><time datetime="{date_iso}">{date_display}</time></p>
+            <h2 class="post-card-title">{title}</h2>
+            <p class="post-card-desc">{description}</p>
+        </div>
+    </a>
+</li>

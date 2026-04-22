@@ -9,3 +9,4 @@ edition = "2024"
 [dependencies]
 macros = { path = "macros" }
 minify-html = "0.18.1"
+pulldown-cmark = { version = "0.12", default-features = false, features = ["html"] }

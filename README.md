@@ -2,6 +2,10 @@
 
 Website featuring indie apps, ideas, tooling, stories and articles for larger-than-life people building tiny awesome products.
 
+## Setup
+Install [Rust](https://rust-lang.org/tools/install/).
+Run `just dev`
+
 ## Licensing
 
 This repository is dual-licensed:

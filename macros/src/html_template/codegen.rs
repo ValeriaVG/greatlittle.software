@@ -1,3 +1,4 @@
+use super::parse::Cond;
 use super::{Kind, Part, Signature};
 
 pub(crate) fn render(
@@ -33,24 +34,38 @@ pub(crate) fn render(
         out.push_str(&format!("    if !{slot}.js.is_empty() {{ if !__js.is_empty() {{ __js.push('\\n'); }} __js.push_str(&{slot}.js); }}\n"));
     }
     out.push_str("    let mut __html = String::new();\n");
+    emit_parts(&mut out, parts, "    ");
+    out.push_str("    Fragment { html: __html, css: __css, js: __js }\n}\n");
+    out
+}
+
+fn emit_parts(out: &mut String, parts: &[Part], indent: &str) {
     for part in parts {
         match part {
             Part::Text(t) => {
-                out.push_str(&format!("    __html.push_str({});\n", rust_str_lit(t)));
+                out.push_str(&format!("{indent}__html.push_str({});\n", rust_str_lit(t)));
             }
             Part::Field(g, f) => {
-                out.push_str(&format!("    __html.push_str(&{g}.{f});\n"));
+                out.push_str(&format!("{indent}__html.push_str(&{g}.{f});\n"));
             }
             Part::Scalar(s) => {
-                out.push_str(&format!("    __html.push_str({s});\n"));
+                out.push_str(&format!("{indent}__html.push_str({s});\n"));
             }
             Part::Slot(s) => {
-                out.push_str(&format!("    __html.push_str(&{s}.html);\n"));
+                out.push_str(&format!("{indent}__html.push_str(&{s}.html);\n"));
+            }
+            Part::If(cond, body) => {
+                let expr = match cond {
+                    Cond::Scalar(s) => format!("!{s}.is_empty()"),
+                    Cond::Field(g, f) => format!("!{g}.{f}.is_empty()"),
+                };
+                out.push_str(&format!("{indent}if {expr} {{\n"));
+                let inner = format!("{indent}    ");
+                emit_parts(out, body, &inner);
+                out.push_str(&format!("{indent}}}\n"));
             }
         }
     }
-    out.push_str("    Fragment { html: __html, css: __css, js: __js }\n}\n");
-    out
 }
 
 fn to_pascal(s: &str) -> String {
