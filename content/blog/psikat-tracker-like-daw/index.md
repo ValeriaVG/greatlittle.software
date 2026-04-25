@@ -5,7 +5,7 @@ category: music
 keywords: [music, webapp, tracker, daw]
 author: Valeria Viana Gusmao
 created_at: 2026-04-19T16:15:24Z
-updated_at: 2026-04-18:22:00Z
+updated_at: 2026-04-24T21:25:00Z
 cover:
     src: psikat_com.png
     alt: Pixel art cat - logo of psikat, followed by "Browser-based tracker-like sequencer DAW, v0.7.18-alpha, made by holoflash" over the interface of psikat with prominent piano keyboard at the bottom
@@ -14,9 +14,9 @@ product:
     cover: psikat_com.png
     blurb: A tracker-like DAW in your browser.
     actions:
-        - label: Try it
+        - label: Try psikat
           url: https://psikat.com
-        - label: Join Discord
+        - label: Join psikat Discord
           url: https://discord.gg/2a7jghQ2W
 ---
 
