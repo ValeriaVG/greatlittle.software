@@ -1,11 +1,21 @@
 <header class="site-header">
     <div class="site-header-inner">
+        <!--if is_home-->
+        <h1 class="site-header-logo">
+            <span>Great Little Software.</span>
+            <svg class="site-header-underline" viewBox="0 0 600 24" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M6,16 C120,4 260,22 380,10 S560,18 594,8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+        </h1>
+        <!--/if-->
+        <!--if is_inner-->
         <a class="site-header-logo" href="/" aria-label="Great Little Software, home">
             <span>Great Little Software.</span>
             <svg class="site-header-underline" viewBox="0 0 600 24" preserveAspectRatio="none" aria-hidden="true">
                 <path d="M6,16 C120,4 260,22 380,10 S560,18 594,8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
             </svg>
         </a>
+        <!--/if-->
         <nav class="site-header-nav" aria-label="Primary">
             <a href="/blog/">Blog</a>
             <button type="button" class="site-header-theme" aria-label="Toggle dark mode" aria-pressed="false">

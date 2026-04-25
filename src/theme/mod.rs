@@ -36,9 +36,18 @@ fn is_leap(y: u32) -> bool {
 }
 
 pub fn layout(title: &str, description: &str, canonical: &str, children: Bundle) -> Bundle {
+    layout_with(title, description, canonical, false, children)
+}
+
+pub fn home_layout(title: &str, description: &str, canonical: &str, children: Bundle) -> Bundle {
+    layout_with(title, description, canonical, true, children)
+}
+
+fn layout_with(title: &str, description: &str, canonical: &str, is_home: bool, children: Bundle) -> Bundle {
     let year = current_year().to_string();
+    let (is_home_v, is_inner_v) = if is_home { ("1", "") } else { ("", "1") };
     let header_bundle = Bundle {
-        html: header(),
+        html: header(is_home_v, is_inner_v),
         css: header_css(),
         js: header_js(),
     };

@@ -41,14 +41,15 @@ fn main() -> std::io::Result<()> {
         }
     }
 
-    let page = finalize(home::render());
     let dist = Path::new("dist");
     fs::create_dir_all(dist)?;
+    let content = Path::new("content");
+
+    let page = finalize(home::render(content, false));
     let out = dist.join("index.html");
     fs::write(&out, &page)?;
     println!("wrote {}", out.display());
 
-    let content = Path::new("content");
     for written in blog::build(content, dist, false)? {
         println!("wrote {written}");
     }

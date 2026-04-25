@@ -4,7 +4,6 @@
     background: var(--color-surface);
     overflow: hidden;
     position: relative;
-    transition: border-color 0.15s ease, transform 0.15s ease;
 }
 .post-card-draft {
     position: absolute;
@@ -27,7 +26,6 @@
 .post-card:not(:has(.post-card-cover)) .post-card-body {
     padding-top: 0.75rem;
 }
-.post-card:hover { border-color: var(--color-ink); }
 .post-card a {
     display: block;
     text-decoration: none;

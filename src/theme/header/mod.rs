@@ -7,7 +7,16 @@ mod previews {
     #[preview("Header")]
     fn basic() -> Bundle {
         Bundle {
-            html: super::super::header(),
+            html: super::super::header("", "1"),
+            css: super::super::header_css(),
+            js: super::super::header_js(),
+        }
+    }
+
+    #[preview("Header (home)")]
+    fn home() -> Bundle {
+        Bundle {
+            html: super::super::header("1", ""),
             css: super::super::header_css(),
             js: super::super::header_js(),
         }

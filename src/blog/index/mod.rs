@@ -6,7 +6,7 @@ mod previews {
 
     use super::super::{
         BreadcrumbsItem, breadcrumbs, breadcrumbs_css, breadcrumbs_js, card, card_css, card_js,
-        index,
+        coming_soon, coming_soon_css, coming_soon_js, index,
     };
 
     fn crumbs() -> Bundle {
@@ -55,16 +55,16 @@ mod previews {
                 "Drafts appear in the listing when previewing with drafts included.",
             ));
         }
-        Bundle { html, css: card_css(), js: card_js() }
+        html.push_str(&coming_soon());
+        let mut css = card_css();
+        css.push_str(&coming_soon_css());
+        let mut js = card_js();
+        js.push_str(&coming_soon_js());
+        Bundle { html, css, js }
     }
 
     fn render(cards: Bundle) -> Bundle {
-        index(
-            crumbs(),
-            "Blog",
-            "Stories, notes and field reports about indie software.",
-            cards,
-        )
+        index(crumbs(), cards)
     }
 
     #[preview("Blog index/Default")]
@@ -79,6 +79,18 @@ mod previews {
 
     #[preview("Blog index/Empty")]
     fn empty() -> Bundle {
-        render(Bundle { html: String::new(), css: card_css(), js: card_js() })
+        render(Bundle {
+            html: coming_soon(),
+            css: {
+                let mut css = card_css();
+                css.push_str(&coming_soon_css());
+                css
+            },
+            js: {
+                let mut js = card_js();
+                js.push_str(&coming_soon_js());
+                js
+            },
+        })
     }
 }

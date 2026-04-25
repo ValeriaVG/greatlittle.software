@@ -60,9 +60,10 @@ fn rebuild(out_root: &Path, version: &AtomicU64) -> std::io::Result<()> {
         fs::remove_dir_all(&blog_out)?;
     }
     fs::create_dir_all(out_root)?;
-    let page = finalize(home::render());
+    let content = Path::new("content");
+    let page = finalize(home::render(content, true));
     fs::write(out_root.join("index.html"), &page)?;
-    blog::build(Path::new("content"), out_root, true)?;
+    blog::build(content, out_root, true)?;
     let assets = Path::new("assets");
     if assets.exists() {
         let dst = out_root.join("assets");

@@ -12,6 +12,7 @@ use crate::theme::{layout, SITE_URL};
 mod article;
 mod breadcrumbs;
 mod card;
+mod coming_soon;
 mod index;
 mod newsletter;
 
@@ -25,6 +26,7 @@ html_template!(article, "src/blog/article");
 html_template!(breadcrumbs, "src/blog/breadcrumbs");
 html_template!(index, "src/blog/index");
 html_template!(card, "src/blog/card");
+html_template!(coming_soon, "src/blog/coming_soon");
 html_template!(newsletter, "src/blog/newsletter");
 
 #[derive(Default, Deserialize)]
@@ -65,7 +67,7 @@ struct FrontMatter {
 }
 
 pub struct Post {
-    slug: String,
+    pub slug: String,
     dir: PathBuf,
     fm: FrontMatter,
     date_display: String,
@@ -102,15 +104,12 @@ fn current_crumb(label: impl Into<String>) -> BreadcrumbsItem {
     BreadcrumbsItem { href: String::new(), label: label.into(), current: "page".into() }
 }
 
-pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::Result<Vec<String>> {
+pub fn collect_posts(content_root: &Path, include_drafts: bool) -> io::Result<Vec<Post>> {
     let blog_src = content_root.join("blog");
-    let blog_out = out_root.join("blog");
-    if !blog_src.exists() {
-        return Ok(Vec::new());
-    }
-    fs::create_dir_all(&blog_out)?;
-
     let mut posts: Vec<Post> = Vec::new();
+    if !blog_src.exists() {
+        return Ok(posts);
+    }
     for entry in fs::read_dir(&blog_src)? {
         let entry = entry?;
         if !entry.file_type()?.is_dir() {
@@ -130,6 +129,24 @@ pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::
         posts.push(post);
     }
     posts.sort_by(|a, b| b.fm.created_at.cmp(&a.fm.created_at));
+    Ok(posts)
+}
+
+pub fn cards_bundle(posts: &[Post]) -> Bundle {
+    let mut html = String::new();
+    for post in posts {
+        html.push_str(&card_for(post));
+    }
+    Bundle { html, css: card_css(), js: card_js() }
+}
+
+pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::Result<Vec<String>> {
+    let blog_out = out_root.join("blog");
+    let posts = collect_posts(content_root, include_drafts)?;
+    if posts.is_empty() && !content_root.join("blog").exists() {
+        return Ok(Vec::new());
+    }
+    fs::create_dir_all(&blog_out)?;
 
     let mut written = Vec::new();
     let mut cards_html = String::new();
@@ -145,9 +162,14 @@ pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::
         cards_html.push_str(&card_for(post));
     }
 
-    let cards = Bundle { html: cards_html, css: card_css(), js: card_js() };
+    cards_html.push_str(&coming_soon());
+    let mut cards_css = card_css();
+    cards_css.push_str(&coming_soon_css());
+    let mut cards_js = card_js();
+    cards_js.push_str(&coming_soon_js());
+    let cards = Bundle { html: cards_html, css: cards_css, js: cards_js };
     let crumbs = crumbs_bundle(&[crumb("/", "Home"), current_crumb("Blog")]);
-    let idx = index(crumbs, BLOG_TITLE, BLOG_DESCRIPTION, cards);
+    let idx = index(crumbs, cards);
     let page_title = format!("{BLOG_TITLE} | {SITE_NAME}");
     let blog_canonical = format!("{SITE_URL}/blog/");
     let page = layout(&page_title, BLOG_DESCRIPTION, &blog_canonical, idx);
