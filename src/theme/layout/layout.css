@@ -45,3 +45,12 @@ footer a:hover {
 footer p {
     margin: 0;
 }
+.footer-github {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.footer-github svg {
+    width: 1rem;
+    height: 1rem;
+}

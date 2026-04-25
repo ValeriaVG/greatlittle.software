@@ -50,6 +50,20 @@
 .site-header-nav a:hover {
     border-bottom-color: currentColor;
 }
+.site-header-github {
+    display: inline-flex;
+    align-items: center;
+    border-bottom: 0 !important;
+    opacity: 0.8;
+    transition: opacity 0.15s ease;
+}
+.site-header-github:hover {
+    opacity: 1;
+}
+.site-header-github svg {
+    width: 1.2rem;
+    height: 1.2rem;
+}
 .site-header-theme {
     appearance: none;
     background: transparent;
