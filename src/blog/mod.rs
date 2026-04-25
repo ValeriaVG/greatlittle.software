@@ -7,14 +7,14 @@ use pulldown_cmark::{html as cmark_html, Options, Parser};
 use serde::Deserialize;
 
 use crate::html::{finalize, template, Bundle};
-use crate::theme::layout;
+use crate::theme::{layout, SITE_URL};
 
 mod article;
 mod breadcrumbs;
 mod card;
 mod index;
+mod newsletter;
 
-const SITE_URL: &str = "https://greatlittle.software";
 const SITE_NAME: &str = "Great Little Software";
 const BLOG_TITLE: &str = "Blog";
 const BLOG_DESCRIPTION: &str = "Stories, notes and field reports about indie software.";
@@ -25,12 +25,29 @@ html_template!(article, "src/blog/article");
 html_template!(breadcrumbs, "src/blog/breadcrumbs");
 html_template!(index, "src/blog/index");
 html_template!(card, "src/blog/card");
+html_template!(newsletter, "src/blog/newsletter");
 
 #[derive(Default, Deserialize)]
 #[serde(default)]
 struct Cover {
     src: String,
     alt: String,
+}
+
+#[derive(Default, Deserialize)]
+#[serde(default)]
+struct Action {
+    label: String,
+    url: String,
+}
+
+#[derive(Default, Deserialize)]
+#[serde(default)]
+struct Product {
+    name: String,
+    cover: String,
+    blurb: String,
+    actions: Vec<Action>,
 }
 
 #[derive(Default, Deserialize)]
@@ -44,6 +61,7 @@ struct FrontMatter {
     updated_at: String,
     author: String,
     cover: Cover,
+    product: Product,
 }
 
 pub struct Post {
@@ -131,7 +149,8 @@ pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::
     let crumbs = crumbs_bundle(&[crumb("/", "Home"), current_crumb("Blog")]);
     let idx = index(crumbs, BLOG_TITLE, BLOG_DESCRIPTION, cards);
     let page_title = format!("{BLOG_TITLE} | {SITE_NAME}");
-    let page = layout(&page_title, BLOG_DESCRIPTION, idx);
+    let blog_canonical = format!("{SITE_URL}/blog/");
+    let page = layout(&page_title, BLOG_DESCRIPTION, &blog_canonical, idx);
     let out = blog_out.join("index.html");
     fs::write(&out, finalize(page))?;
     written.push(out.display().to_string());
@@ -151,6 +170,18 @@ fn render_post_page(post: &Post) -> String {
         alt: post.fm.cover.alt.clone(),
         url: post.cover_url(),
     };
+    let product_data = ArticleProduct {
+        name: post.fm.product.name.clone(),
+        cover: post.fm.product.cover.clone(),
+        blurb: post.fm.product.blurb.clone(),
+    };
+    let actions: Vec<ArticleAction> = post
+        .fm
+        .product
+        .actions
+        .iter()
+        .map(|a| ArticleAction { label: a.label.clone(), url: a.url.clone() })
+        .collect();
     let body = Bundle {
         html: post.body_html.clone(),
         css: String::new(),
@@ -162,6 +193,7 @@ fn render_post_page(post: &Post) -> String {
         current_crumb(post.fm.title.clone()),
     ]);
     let keywords = post.fm.keywords.join(", ");
+    let news = Bundle { html: newsletter(), css: newsletter_css(), js: newsletter_js() };
     let art = article(
         crumbs,
         post.draft_marker(),
@@ -170,10 +202,13 @@ fn render_post_page(post: &Post) -> String {
         &article_data,
         &cover_data,
         body,
+        &product_data,
+        &actions,
+        news,
         post.updated(),
         &keywords,
     );
-    finalize(layout(&post.fm.title, &post.fm.description, art))
+    finalize(layout(&post.fm.title, &post.fm.description, &post.canonical(), art))
 }
 
 fn crumbs_bundle(items: &[BreadcrumbsItem]) -> Bundle {

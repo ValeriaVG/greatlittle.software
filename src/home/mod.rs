@@ -1,7 +1,7 @@
 use macros::html_template;
 
 use crate::html::{template, Bundle};
-use crate::theme::layout;
+use crate::theme::{layout, SITE_URL};
 
 mod intro;
 
@@ -17,6 +17,7 @@ pub fn render() -> Bundle {
     layout(
         TITLE,
         "Collection of indie apps, ideas, tooling, stories and articles about larger-than-life people building tiny awesome products.",
+        &format!("{SITE_URL}/"),
         body,
     )
 }

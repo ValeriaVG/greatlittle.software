@@ -1,19 +1,44 @@
 <slot name="breadcrumbs"></slot>
-<article class="post">
-    <header class="post-header">
-        <!--if is_draft-->
-        <p class="post-draft">Draft preview</p>
+<div class="post-wrap">
+    <article class="post">
+        <header class="post-header">
+            <!--if is_draft-->
+            <p class="post-draft">Draft preview</p>
+            <!--/if-->
+            <p class="post-date"><time datetime="{date_iso}">{date_display}</time></p>
+            <h1 class="post-title">{article.title}</h1>
+            <p class="post-author">by {article.author}</p>
+        </header>
+        <!--if cover.src-->
+        <figure class="post-cover">
+            <img src="{cover.src}" alt="{cover.alt}" />
+        </figure>
         <!--/if-->
-        <p class="post-date"><time datetime="{date_iso}">{date_display}</time></p>
-        <h1 class="post-title">{article.title}</h1>
-        <p class="post-author">by {article.author}</p>
-    </header>
-    <!--if cover.src-->
-    <figure class="post-cover">
-        <img src="{cover.src}" alt="{cover.alt}" />
-    </figure>
+        <section class="prose">
+            <slot name="body"></slot>
+        </section>
+    </article>
+    <!--if product.name-->
+    <aside class="product-rail" aria-label="{product.name}">
+        <div class="product-rail-preview">
+            <div class="product-rail-preview-inner">
+                <!--if product.cover-->
+                <div class="product-rail-cover-frame">
+                    <img class="product-rail-cover" src="{product.cover}" alt="" />
+                </div>
+                <!--/if-->
+                <p class="product-rail-name">{product.name}</p>
+                <!--if product.blurb-->
+                <p class="product-rail-blurb">{product.blurb}</p>
+                <!--/if-->
+            </div>
+        </div>
+        <div class="product-rail-actions">
+            <!--for action in actions-->
+            <a class="product-rail-action" href="{action.url}">{action.label}</a>
+            <!--/for-->
+        </div>
+    </aside>
     <!--/if-->
-    <section class="prose">
-        <slot name="body"></slot>
-    </section>
-</article>
+</div>
+<slot name="newsletter"></slot>

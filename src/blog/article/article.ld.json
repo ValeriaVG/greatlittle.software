@@ -20,7 +20,7 @@
             "url": "{article.url}",
             "keywords": "{keywords}",
             "author": {"@type": "Person", "name": "{article.author}"},
-            "publisher": {"@type": "Organization", "name": "Great Little Software", "url": "https://greatlittle.software"},
+            "publisher": {"@type": "Organization", "name": "Great Little Software", "url": "https://greatlittle.software/"},
             "mainEntityOfPage": {"@type": "WebPage", "@id": "{article.url}"}
         }
     ]

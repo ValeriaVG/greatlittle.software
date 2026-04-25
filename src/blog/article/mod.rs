@@ -5,8 +5,8 @@ mod previews {
     use crate::html::Bundle;
 
     use super::super::{
-        ArticleArticle, ArticleCover, BreadcrumbsItem, article, breadcrumbs, breadcrumbs_css,
-        breadcrumbs_js,
+        ArticleAction, ArticleArticle, ArticleCover, ArticleProduct, BreadcrumbsItem, article,
+        breadcrumbs, breadcrumbs_css, breadcrumbs_js, newsletter, newsletter_css, newsletter_js,
     };
 
     const BODY_HTML: &str = "<p>A short opening paragraph that sets up the piece and gives a flavour of the writing voice.</p>\n<h2>A section heading</h2>\n<p>Body copy with <a href=\"#\">a link</a>, <em>emphasis</em> and <strong>strong</strong> text so the prose styles get a workout.</p>\n<ul><li>First bullet</li><li>Second bullet</li><li>Third bullet</li></ul>\n<blockquote><p>A pull quote to check blockquote styles.</p></blockquote>\n<pre><code>fn main() {\n    println!(\"hi\");\n}\n</code></pre>\n";
@@ -28,6 +28,10 @@ mod previews {
         Bundle { html: BODY_HTML.into(), css: String::new(), js: String::new() }
     }
 
+    fn news() -> Bundle {
+        Bundle { html: newsletter(), css: newsletter_css(), js: newsletter_js() }
+    }
+
     fn sample_article() -> ArticleArticle {
         ArticleArticle {
             title: "A Great Little Example Post".into(),
@@ -35,6 +39,25 @@ mod previews {
             description: "A short description that gives a taste of what the article is about.".into(),
             author: "Great Little Software".into(),
         }
+    }
+
+    fn empty_product() -> ArticleProduct {
+        ArticleProduct { name: String::new(), cover: String::new(), blurb: String::new() }
+    }
+
+    fn sample_product() -> ArticleProduct {
+        ArticleProduct {
+            name: "psikat".into(),
+            cover: "https://picsum.photos/seed/psikat/640/360".into(),
+            blurb: "A tracker-like DAW in your browser.".into(),
+        }
+    }
+
+    fn sample_actions() -> Vec<ArticleAction> {
+        vec![
+            ArticleAction { label: "Try it".into(), url: "https://psikat.com".into() },
+            ArticleAction { label: "Join Discord".into(), url: "https://discord.gg/example".into() },
+        ]
     }
 
     #[preview("Article/Default/Full")]
@@ -52,6 +75,9 @@ mod previews {
             &sample_article(),
             &cover,
             body(),
+            &empty_product(),
+            &[],
+            news(),
             "2026-04-19",
             "indie software, writing",
         )
@@ -68,8 +94,34 @@ mod previews {
             &sample_article(),
             &cover,
             body(),
+            &empty_product(),
+            &[],
+            news(),
             "2026-03-02",
             "indie software",
+        )
+    }
+
+    #[preview("Article/Default/With product")]
+    fn with_product() -> Bundle {
+        let cover = ArticleCover {
+            src: "https://picsum.photos/seed/greatlittle/1200/600".into(),
+            alt: "Abstract placeholder cover".into(),
+            url: "https://picsum.photos/seed/greatlittle/1200/600".into(),
+        };
+        article(
+            crumbs(),
+            "",
+            "2026-04-19",
+            "April 19, 2026",
+            &sample_article(),
+            &cover,
+            body(),
+            &sample_product(),
+            &sample_actions(),
+            news(),
+            "2026-04-19",
+            "indie software, writing",
         )
     }
 
@@ -88,6 +140,9 @@ mod previews {
             &sample_article(),
             &cover,
             body(),
+            &empty_product(),
+            &[],
+            news(),
             "2026-04-19",
             "indie software, writing",
         )

@@ -1,15 +1,23 @@
 ---
 title: "Psikat: a tracker-like DAW"
 description: "What do cats, 1980s, web development, a DAW and a tracker have in common?"
-keywords: [music, webapp, tracker, daw, psikat, holoflash, michael palace, wasm, rust, browser daw]
+category: music
+keywords: [music, webapp, tracker, daw]
 author: Valeria Viana Gusmao
-is_draft: true
 created_at: 2026-04-19T16:15:24Z
-updated_at: 2026-04-22T00:00:00Z
-link: https://psikat.com/
+updated_at: 2026-04-18:22:00Z
 cover:
     src: psikat_com.png
     alt: Pixel art cat - logo of psikat, followed by "Browser-based tracker-like sequencer DAW, v0.7.18-alpha, made by holoflash" over the interface of psikat with prominent piano keyboard at the bottom
+product:
+    name: psikat
+    cover: psikat_com.png
+    blurb: A tracker-like DAW in your browser.
+    actions:
+        - label: Try it
+          url: https://psikat.com
+        - label: Join Discord
+          url: https://discord.gg/2a7jghQ2W
 ---
 
 >...I've always known that I've been missing out and the modern day just lacks that special charm...
