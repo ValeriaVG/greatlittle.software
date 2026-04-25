@@ -36,14 +36,44 @@ fn is_leap(y: u32) -> bool {
 }
 
 pub fn layout(title: &str, description: &str, canonical: &str, children: Bundle) -> Bundle {
-    layout_with(title, description, canonical, false, children)
+    layout_with(title, description, canonical, "", "", false, children)
+}
+
+pub fn layout_with_image(
+    title: &str,
+    description: &str,
+    canonical: &str,
+    image: &str,
+    image_alt: &str,
+    children: Bundle,
+) -> Bundle {
+    layout_with(title, description, canonical, image, image_alt, false, children)
 }
 
 pub fn home_layout(title: &str, description: &str, canonical: &str, children: Bundle) -> Bundle {
-    layout_with(title, description, canonical, true, children)
+    layout_with(title, description, canonical, "", "", true, children)
 }
 
-fn layout_with(title: &str, description: &str, canonical: &str, is_home: bool, children: Bundle) -> Bundle {
+pub fn home_layout_with_image(
+    title: &str,
+    description: &str,
+    canonical: &str,
+    image: &str,
+    image_alt: &str,
+    children: Bundle,
+) -> Bundle {
+    layout_with(title, description, canonical, image, image_alt, true, children)
+}
+
+fn layout_with(
+    title: &str,
+    description: &str,
+    canonical: &str,
+    image: &str,
+    image_alt: &str,
+    is_home: bool,
+    children: Bundle,
+) -> Bundle {
     let year = current_year().to_string();
     let (is_home_v, is_inner_v) = if is_home { ("1", "") } else { ("", "1") };
     let header_bundle = Bundle {
@@ -51,7 +81,7 @@ fn layout_with(title: &str, description: &str, canonical: &str, is_home: bool, c
         css: header_css(),
         js: header_js(),
     };
-    let mut out = layout_template(title, description, canonical, header_bundle, children, &year);
+    let mut out = layout_template(title, description, canonical, image, image_alt, header_bundle, children, &year);
     let root = root_css();
     if !root.is_empty() {
         if out.css.is_empty() {

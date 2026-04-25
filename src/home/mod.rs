@@ -4,7 +4,7 @@ use macros::html_template;
 
 use crate::blog;
 use crate::html::{template, Bundle};
-use crate::theme::{home_layout, SITE_URL};
+use crate::theme::{home_layout_with_image, SITE_URL};
 
 mod latest;
 
@@ -17,9 +17,13 @@ pub fn render(content_root: &Path, include_drafts: bool) -> Bundle {
 
     let mut body = Bundle { html: String::new(), css: String::new(), js: String::new() };
 
+    let mut og_image = String::new();
+    let mut og_image_alt = String::new();
     if let Some(featured) = posts.first() {
         let cards = blog::cards_bundle(std::slice::from_ref(featured));
         body = merge(body, latest(cards));
+        og_image = featured.cover_url();
+        og_image_alt = featured.cover_alt().to_string();
     }
 
     body = merge(body, Bundle {
@@ -28,7 +32,14 @@ pub fn render(content_root: &Path, include_drafts: bool) -> Bundle {
         js: blog::newsletter_js(),
     });
 
-    home_layout(TITLE, DESCRIPTION, &format!("{SITE_URL}/"), body)
+    home_layout_with_image(
+        TITLE,
+        DESCRIPTION,
+        &format!("{SITE_URL}/"),
+        &og_image,
+        &og_image_alt,
+        body,
+    )
 }
 
 fn merge(a: Bundle, b: Bundle) -> Bundle {

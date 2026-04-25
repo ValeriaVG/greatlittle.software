@@ -7,7 +7,7 @@ use pulldown_cmark::{html as cmark_html, Options, Parser};
 use serde::Deserialize;
 
 use crate::html::{finalize, template, Bundle};
-use crate::theme::{layout, SITE_URL};
+use crate::theme::{layout, layout_with_image, SITE_URL};
 
 mod article;
 mod breadcrumbs;
@@ -81,12 +81,15 @@ impl Post {
     pub fn lastmod(&self) -> &str {
         self.updated()
     }
-    fn cover_url(&self) -> String {
+    pub fn cover_url(&self) -> String {
         if self.fm.cover.src.is_empty() {
             String::new()
         } else {
             format!("{SITE_URL}/blog/{}/{}", self.slug, self.fm.cover.src)
         }
+    }
+    pub fn cover_alt(&self) -> &str {
+        &self.fm.cover.alt
     }
     fn author(&self) -> String {
         if self.fm.author.is_empty() { SITE_NAME.into() } else { self.fm.author.clone() }
@@ -233,7 +236,14 @@ fn render_post_page(post: &Post) -> String {
         post.updated(),
         &keywords,
     );
-    finalize(layout(&post.fm.title, &post.fm.description, &post.canonical(), art))
+    finalize(layout_with_image(
+        &post.fm.title,
+        &post.fm.description,
+        &post.canonical(),
+        &post.cover_url(),
+        &post.fm.cover.alt,
+        art,
+    ))
 }
 
 fn crumbs_bundle(items: &[BreadcrumbsItem]) -> Bundle {
