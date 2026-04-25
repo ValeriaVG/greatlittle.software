@@ -2,7 +2,10 @@ use macros::html_template;
 
 use crate::html::{template, Bundle};
 
+mod header;
+
 html_template!(layout_template, "src/theme/layout");
+html_template!(header, "src/theme/header");
 
 pub const SITE_URL: &str = "https://greatlittle.software";
 pub const ROOT_CSS_PATH: &str = "src/theme/root.css";
@@ -34,7 +37,12 @@ fn is_leap(y: u32) -> bool {
 
 pub fn layout(title: &str, description: &str, canonical: &str, children: Bundle) -> Bundle {
     let year = current_year().to_string();
-    let mut out = layout_template(title, description, canonical, children, &year);
+    let header_bundle = Bundle {
+        html: header(),
+        css: header_css(),
+        js: header_js(),
+    };
+    let mut out = layout_template(title, description, canonical, header_bundle, children, &year);
     let root = root_css();
     if !root.is_empty() {
         if out.css.is_empty() {

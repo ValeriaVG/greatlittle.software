@@ -19,6 +19,8 @@
     --space-xl: 2.5rem;
     --space-xxl: 5rem;
 
+    --wrap-max: 60.5rem;
+
     color-scheme: light;
 }
 

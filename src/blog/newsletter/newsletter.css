@@ -6,7 +6,7 @@
     border-top: 6px solid var(--color-ink);
 }
 .newsletter-inner {
-    max-width: 44rem;
+    max-width: var(--wrap-max);
     margin: 0 auto;
 }
 .newsletter h2 {

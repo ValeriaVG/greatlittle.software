@@ -15,7 +15,7 @@ footer {
     font-size: 0.9rem;
 }
 .footer-inner {
-    max-width: 41rem;
+    max-width: var(--wrap-max);
     margin: 0 auto;
     display: flex;
     flex-direction: column;
