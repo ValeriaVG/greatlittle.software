@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use greatlittle_software::{blog, dev, home, html::finalize};
+use greatlittle_software::{blog, dev, home, html::finalize, sitemap};
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = std::env::args().collect();
@@ -53,6 +53,9 @@ fn main() -> std::io::Result<()> {
     for written in blog::build(content, dist, false)? {
         println!("wrote {written}");
     }
+
+    let sitemap_out = sitemap::build(content, dist, false)?;
+    println!("wrote {sitemap_out}");
 
     let assets = Path::new("assets");
     if assets.exists() {

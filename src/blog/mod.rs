@@ -75,8 +75,11 @@ pub struct Post {
 }
 
 impl Post {
-    fn canonical(&self) -> String {
+    pub fn canonical(&self) -> String {
         format!("{SITE_URL}/blog/{}/", self.slug)
+    }
+    pub fn lastmod(&self) -> &str {
+        self.updated()
     }
     fn cover_url(&self) -> String {
         if self.fm.cover.src.is_empty() {
