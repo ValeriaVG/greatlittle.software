@@ -1,0 +1,64 @@
+title: "[Submission] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggest a piece of software for Great Little Software to feature.
+        The more detail you share, the better we can evaluate it and tell its story.
+  - type: input
+    id: app_name
+    attributes:
+      label: What is the name of the software?
+      description: The app, tool or project you want to tell us about.
+    validations:
+      required: true
+  - type: input
+    id: app_url
+    attributes:
+      label: Where can we find it?
+      description: Link to the project's website, repo or store page.
+      placeholder: "https://"
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: What motivated you to build it?
+    validations:
+      required: true
+  - type: textarea
+    id: easy_hard
+    attributes:
+      label: What was easy and what was unexpectedly hard?
+    validations:
+      required: true
+  - type: textarea
+    id: non_negotiables
+    attributes:
+      label: What decisions were non-negotiable?
+    validations:
+      required: true
+  - type: textarea
+    id: ai_process
+    attributes:
+      label: How did AI fit into your process, if at all?
+    validations:
+      required: false
+  - type: textarea
+    id: wish_different
+    attributes:
+      label: What do you wish you had done differently?
+    validations:
+      required: true
+  - type: textarea
+    id: wild_dream
+    attributes:
+      label: What is your wildest dream for the project?
+    validations:
+      required: true
+  - type: textarea
+    id: anything_else
+    attributes:
+      label: Anything else you want to share?
+    validations:
+      required: false
