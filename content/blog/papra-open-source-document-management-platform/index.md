@@ -4,7 +4,7 @@ description: "An open-source, self-hostable document management platform built o
 category: productivity
 keywords: [open-source, document, web]
 author: Valeria Viana Gusmao
-is_draft: true
+is_draft: false
 created_at: 2026-05-03T12:19:03Z
 cover:
     src: papra.webp
@@ -19,7 +19,7 @@ product:
         - label: Star on GitHub
           url: https://github.com/papra-hq/papra
 ---
-> To me, the main non-negotiable point is the ethical aspect of the project. From having everything opensource, to being selfhosting frendly and privacy-focused, no dark patterns, no shady stuff, no monetization of user data, no bullshit. It's really important for me to build a product that I can be proud of, that aligns with my values, and that make a positive impact, even if it means slower growth or less profit. I'd rather build a smaller sustainable product that treats people well than a bigger one that doesn't.
+> To me, the main non-negotiable point is the ethical aspect of the project. From having everything opensource, to being selfhosting friendly and privacy-focused, no dark patterns, no shady stuff, no monetization of user data, no bullshit. It's really important for me to build a product that I can be proud of, that aligns with my values, and that make a positive impact, even if it means slower growth or less profit. I'd rather build a smaller sustainable product that treats people well than a bigger one that doesn't.
 > -- <cite>Corentin Thomasset</cite>
 
 Papra came up in a research that AI agent did for me. It was a very disappointing research, small indie apps built on strong ethical foundation are very hard to find. I think partly because those who make them care more about the apps than the marketing, but mostly because of the sheer volume of yet-another-too-good-to-be-true AI SaaS platform. So when I stumbled upon Papra I got very excited to see the one that made it through the noise!
@@ -53,7 +53,7 @@ As Corentin put it: "...being a solo founder, you have to wear many hats (every 
 Naturally, one would suggest to turn to the all-powerful-LLMs to balance the load out, but I think Corentin has a good point about it:
 "As a said above, I really enjoy building software, writing code, finding solutions to problems, and crafting stuff with my bare hands, so AI has never had a significant role in Papra's development. I don't want the robots doing the fun part for me, or to lose my connection with the codebase."
 
-He mentioned the famous line: "I want AI to do my laundry and dishes so that I can do art and writing, not for AI to do my art and writing so that I can do laundry and dishes.". Given that I've spent the last year trying to tackle this exact problem (never-ending laundry and dishes), I couldn't agree more.
+He mentioned the famous line by [Joanna Maciejewska](https://x.com/AuthorJMac/status/1773679197631701238): "I want AI to do my laundry and dishes so that I can do art and writing, not for AI to do my art and writing so that I can do laundry and dishes.". Given that I've spent the last year trying to tackle this exact problem (never-ending laundry and dishes), I couldn't agree more.
 
 I'm not anti-AI and my impression is that neither is Corentin. He said that he genuinely tried to make it work, but got frustrated because correcting and re-prompting LLM often takes longer and yields worse results than doing it manually. He uses it for reviews and feedback - as a second pair of eyes and a "safety net, not as a builder".
 
