@@ -1,0 +1,23 @@
+.article-related {
+    max-width: var(--wrap-max);
+    margin: 0 auto;
+    padding: 0 var(--space-lg) var(--space-xxl);
+}
+.article-related-eyebrow {
+    margin: 0 0 var(--space-md);
+    font-size: 0.8125rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-ink-subtle);
+}
+.article-related .post-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-lg);
+}
+@media (max-width: 560px) {
+    .article-related .post-list { grid-template-columns: 1fr; }
+}

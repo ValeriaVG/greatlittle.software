@@ -9,8 +9,8 @@ mod previews {
 
     #[preview("Home/Latest")]
     fn default() -> Bundle {
-        let mut html = String::new();
-        html.push_str(&card(
+        let mut featured_html = String::new();
+        featured_html.push_str(&card(
             "example-post",
             "",
             "https://picsum.photos/seed/greatlittle/800/450",
@@ -20,7 +20,10 @@ mod previews {
             "A Great Little Example Post",
             "A short description that gives a taste of what the article is about.",
         ));
-        html.push_str(&card(
+        let featured = Bundle { html: featured_html, css: card_css(), js: card_js() };
+
+        let mut recent_html = String::new();
+        recent_html.push_str(&card(
             "another",
             "",
             "https://picsum.photos/seed/another/800/450",
@@ -30,7 +33,7 @@ mod previews {
             "Notes on Building Small",
             "Why constraints make better software, and the people who lean into them.",
         ));
-        html.push_str(&card(
+        recent_html.push_str(&card(
             "third",
             "",
             "",
@@ -40,7 +43,8 @@ mod previews {
             "Field Report",
             "Short observations from the indie software world.",
         ));
-        let cards = Bundle { html, css: card_css(), js: card_js() };
-        latest(cards)
+        let recent = Bundle { html: recent_html, css: String::new(), js: String::new() };
+
+        latest(featured, "yes", recent)
     }
 }

@@ -6,7 +6,8 @@ mod previews {
 
     use super::super::{
         ArticleAction, ArticleArticle, ArticleCover, ArticleProduct, BreadcrumbsItem, article,
-        breadcrumbs, breadcrumbs_css, breadcrumbs_js, newsletter, newsletter_css, newsletter_js,
+        breadcrumbs, breadcrumbs_css, breadcrumbs_js, card, card_css, card_js, newsletter,
+        newsletter_css, newsletter_js, related,
     };
 
     const BODY_HTML: &str = "<p>A short opening paragraph that sets up the piece and gives a flavour of the writing voice.</p>\n<h2>A section heading</h2>\n<p>Body copy with <a href=\"#\">a link</a>, <em>emphasis</em> and <strong>strong</strong> text so the prose styles get a workout.</p>\n<ul><li>First bullet</li><li>Second bullet</li><li>Third bullet</li></ul>\n<blockquote><p>A pull quote to check blockquote styles.</p></blockquote>\n<pre><code>fn main() {\n    println!(\"hi\");\n}\n</code></pre>\n";
@@ -30,6 +31,28 @@ mod previews {
 
     fn news() -> Bundle {
         Bundle { html: newsletter(), css: newsletter_css(), js: newsletter_js() }
+    }
+
+    fn related_cards() -> Bundle {
+        let html = card(
+            "another-post",
+            "",
+            "https://picsum.photos/seed/greatlittle/800/450",
+            "Another placeholder cover",
+            "2026-03-02",
+            "March 2, 2026",
+            "Another Great Little Article",
+            "A short description of another article.",
+        );
+        Bundle { html, css: card_css(), js: card_js() }
+    }
+
+    fn rel() -> Bundle {
+        related("yes", related_cards())
+    }
+
+    fn empty_related() -> Bundle {
+        related("", Bundle { html: String::new(), css: String::new(), js: String::new() })
     }
 
     fn sample_article() -> ArticleArticle {
@@ -77,6 +100,7 @@ mod previews {
             body(),
             &empty_product(),
             &[],
+            rel(),
             news(),
             "2026-04-19",
             "indie software, writing",
@@ -96,6 +120,7 @@ mod previews {
             body(),
             &empty_product(),
             &[],
+            empty_related(),
             news(),
             "2026-03-02",
             "indie software",
@@ -119,6 +144,7 @@ mod previews {
             body(),
             &sample_product(),
             &sample_actions(),
+            rel(),
             news(),
             "2026-04-19",
             "indie software, writing",
@@ -142,6 +168,7 @@ mod previews {
             body(),
             &empty_product(),
             &[],
+            empty_related(),
             news(),
             "2026-04-19",
             "indie software, writing",

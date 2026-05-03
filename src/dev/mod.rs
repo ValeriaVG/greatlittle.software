@@ -17,13 +17,13 @@ pub const DEV_OUT: &str = ".dev-dist";
 
 html_template!(reload_script, "src/dev/reload");
 
-pub fn run(port: u16) -> std::io::Result<()> {
+pub fn run(port: u16, include_drafts: bool) -> std::io::Result<()> {
     let out_root = PathBuf::from(DEV_OUT);
     if out_root.exists() {
         fs::remove_dir_all(&out_root)?;
     }
     let version = Arc::new(AtomicU64::new(0));
-    rebuild(&out_root, &version)?;
+    rebuild(&out_root, &version, include_drafts)?;
 
     let watch_paths = vec![
         PathBuf::from("content"),
@@ -34,11 +34,16 @@ pub fn run(port: u16) -> std::io::Result<()> {
     {
         let v = Arc::clone(&version);
         let out = out_root.clone();
-        thread::spawn(move || watcher_loop(watch_paths, out, v));
+        thread::spawn(move || watcher_loop(watch_paths, out, v, include_drafts));
     }
 
     let listener = TcpListener::bind(("127.0.0.1", port))?;
     println!("dev server: http://127.0.0.1:{port} (serving {DEV_OUT})");
+    if include_drafts {
+        println!("  drafts included");
+    } else {
+        println!("  drafts excluded (prod mode)");
+    }
     for stream in listener.incoming() {
         match stream {
             Ok(s) => {
@@ -54,16 +59,16 @@ pub fn run(port: u16) -> std::io::Result<()> {
     Ok(())
 }
 
-fn rebuild(out_root: &Path, version: &AtomicU64) -> std::io::Result<()> {
+fn rebuild(out_root: &Path, version: &AtomicU64, include_drafts: bool) -> std::io::Result<()> {
     let blog_out = out_root.join("blog");
     if blog_out.exists() {
         fs::remove_dir_all(&blog_out)?;
     }
     fs::create_dir_all(out_root)?;
     let content = Path::new("content");
-    let page = finalize(home::render(content, true));
+    let page = finalize(home::render(content, include_drafts));
     fs::write(out_root.join("index.html"), &page)?;
-    blog::build(content, out_root, true)?;
+    blog::build(content, out_root, include_drafts)?;
     let assets = Path::new("assets");
     if assets.exists() {
         let dst = out_root.join("assets");
@@ -91,7 +96,7 @@ fn copy_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
-fn watcher_loop(paths: Vec<PathBuf>, out: PathBuf, version: Arc<AtomicU64>) {
+fn watcher_loop(paths: Vec<PathBuf>, out: PathBuf, version: Arc<AtomicU64>, include_drafts: bool) {
     let mut prev = mtimes(&paths);
     loop {
         thread::sleep(Duration::from_millis(250));
@@ -101,7 +106,7 @@ fn watcher_loop(paths: Vec<PathBuf>, out: PathBuf, version: Arc<AtomicU64>) {
         }
         prev = next;
         let t = Instant::now();
-        match rebuild(&out, &version) {
+        match rebuild(&out, &version, include_drafts) {
             Ok(_) => println!("rebuilt in {:?}", t.elapsed()),
             Err(e) => eprintln!("rebuild error: {e}"),
         }

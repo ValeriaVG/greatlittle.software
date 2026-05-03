@@ -15,6 +15,7 @@ mod card;
 mod coming_soon;
 mod index;
 mod newsletter;
+mod related;
 
 const SITE_NAME: &str = "Great Little Software";
 const BLOG_TITLE: &str = "Blog";
@@ -28,6 +29,7 @@ html_template!(index, "src/blog/index");
 html_template!(card, "src/blog/card");
 html_template!(coming_soon, "src/blog/coming_soon");
 html_template!(newsletter, "src/blog/newsletter");
+html_template!(related, "src/blog/related");
 
 #[derive(Default, Deserialize)]
 #[serde(default)]
@@ -162,7 +164,7 @@ pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::
         copy_assets(&post.dir, &post_out)?;
 
         let out = post_out.join("index.html");
-        fs::write(&out, render_post_page(post))?;
+        fs::write(&out, render_post_page(post, &posts))?;
         written.push(out.display().to_string());
 
         cards_html.push_str(&card_for(post));
@@ -186,7 +188,7 @@ pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::
     Ok(written)
 }
 
-fn render_post_page(post: &Post) -> String {
+fn render_post_page(post: &Post, all_posts: &[Post]) -> String {
     let article_data = ArticleArticle {
         title: post.fm.title.clone(),
         url: post.canonical(),
@@ -221,6 +223,15 @@ fn render_post_page(post: &Post) -> String {
         current_crumb(post.fm.title.clone()),
     ]);
     let keywords = post.fm.keywords.join(", ");
+    let related_posts: Vec<&Post> = all_posts.iter().filter(|p| p.slug != post.slug).collect();
+    let related_cards = if related_posts.is_empty() {
+        Bundle { html: String::new(), css: String::new(), js: String::new() }
+    } else {
+        let related_html: String = related_posts.iter().map(|p| card_for(p)).collect();
+        Bundle { html: related_html, css: card_css(), js: card_js() }
+    };
+    let has_cards = if related_posts.is_empty() { "" } else { "yes" };
+    let rel = related(has_cards, related_cards);
     let news = Bundle { html: newsletter(), css: newsletter_css(), js: newsletter_js() };
     let art = article(
         crumbs,
@@ -232,6 +243,7 @@ fn render_post_page(post: &Post) -> String {
         body,
         &product_data,
         &actions,
+        rel,
         news,
         post.updated(),
         &keywords,

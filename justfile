@@ -12,6 +12,9 @@ serve port="8000":
 dev port="8000":
     cargo watch -w src -w Cargo.toml -i '*.html' -i '*.css' -i '*.js' -x 'run -- dev {{port}}'
 
+dev-prod port="8000":
+    cargo watch -w src -w Cargo.toml -i '*.html' -i '*.css' -i '*.js' -x 'run -- dev prod {{port}}'
+
 preview port="8001":
     cargo watch -w src -w Cargo.toml -i '*.html' -i '*.css' -i '*.js' -x 'run --features preview -- preview {{port}}'
 
@@ -33,13 +36,13 @@ write title description="":
         exit 1
     fi
     slug="$base"
-    if [ -e "content/$slug" ]; then
+    if [ -e "content/blog/$slug" ]; then
         slug="$base-$(date +%Y-%m-%d)"
     fi
-    if [ -e "content/$slug" ]; then
+    if [ -e "content/blog/$slug" ]; then
         slug="$base-$(date +%Y-%m-%d-%H%M%S)"
     fi
-    dir="content/$slug"
+    dir="content/blog/$slug"
     mkdir -p "$dir"
     file="$dir/index.md"
     sed -e "s|__TITLE__|$title|" \

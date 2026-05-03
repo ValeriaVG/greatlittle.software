@@ -6,11 +6,19 @@ use greatlittle_software::{blog, dev, home, html::finalize, sitemap};
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = std::env::args().collect();
     if args.get(1).map(|s| s.as_str()) == Some("dev") {
-        let port = args
-            .get(2)
-            .and_then(|s| s.parse::<u16>().ok())
-            .unwrap_or(8000);
-        return dev::run(port);
+        let sub = args.get(2).map(|s| s.as_str());
+        let (port, include_drafts) = match sub {
+            Some("prod") => {
+                let port = args
+                    .get(3)
+                    .and_then(|s| s.parse::<u16>().ok())
+                    .unwrap_or(8000);
+                (port, false)
+            }
+            Some(other) if other.parse::<u16>().is_ok() => (other.parse::<u16>().unwrap(), true),
+            _ => (8000, true),
+        };
+        return dev::run(port, include_drafts);
     }
 
     if args.get(1).map(|s| s.as_str()) == Some("preview") {
