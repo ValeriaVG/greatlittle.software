@@ -1,0 +1,7 @@
+<section class="home-faq">
+<!--if faq_title--><h2 class="home-faq-title">{faq_title}</h2><!--/if-->
+<dl class="home-faq-list">
+<slot name="items"></slot>
+</dl>
+<!--if has_body--><div class="home-faq-body"><slot name="faq_body"></slot></div><!--/if-->
+</section>
