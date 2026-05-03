@@ -1,0 +1,21 @@
+<section class="about">
+    <div class="about-intro">
+        <slot name="body"></slot>
+    </div>
+    <!--if has_timeline-->
+    <ol class="about-timeline">
+        <!--for entry in timeline-->
+        <li class="about-timeline-entry">
+            <div class="about-timeline-marker"></div>
+            <div class="about-timeline-content">
+                <time class="about-timeline-date">{entry.date_display}</time>
+                <h3 class="about-timeline-title">{entry.title}</h3>
+                <!--if entry.description-->
+                <p class="about-timeline-desc">{entry.description}</p>
+                <!--/if-->
+            </div>
+        </li>
+        <!--/for-->
+    </ol>
+    <!--/if-->
+</section>

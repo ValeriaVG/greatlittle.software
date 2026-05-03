@@ -11,7 +11,7 @@ use std::time::{Duration, Instant, SystemTime};
 use macros::html_template;
 
 use crate::html::template;
-use crate::{blog, home, html::finalize};
+use crate::{about, blog, home, html::finalize};
 
 pub const DEV_OUT: &str = ".dev-dist";
 
@@ -28,6 +28,7 @@ pub fn run(port: u16, include_drafts: bool) -> std::io::Result<()> {
     let watch_paths = vec![
         PathBuf::from("content"),
         PathBuf::from("assets"),
+        PathBuf::from("src/about"),
         PathBuf::from("src/blog"),
         PathBuf::from("src/home"),
     ];
@@ -69,6 +70,8 @@ fn rebuild(out_root: &Path, version: &AtomicU64, include_drafts: bool) -> std::i
     let page = finalize(home::render(content, include_drafts));
     fs::write(out_root.join("index.html"), &page)?;
     blog::build(content, out_root, include_drafts)?;
+    let about_written = about::build(content, out_root)?;
+    println!("wrote {about_written}");
     let assets = Path::new("assets");
     if assets.exists() {
         let dst = out_root.join("assets");

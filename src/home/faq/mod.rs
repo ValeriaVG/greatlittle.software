@@ -97,9 +97,9 @@ fn split_frontmatter(raw: &str) -> (&str, &str) {
 mod previews {
     use macros::preview;
 
-use crate::html::{escape_html, template, Bundle};
+    use crate::html::Bundle;
 
-    use super::{faq, faq_css, faq_js, FaqItem};
+    use super::{faq, FaqItem};
 
     #[preview("Home/FAQ")]
     fn default() -> Bundle {
@@ -113,7 +113,7 @@ use crate::html::{escape_html, template, Bundle};
             FaqItem { q: "What is great little software?".into(), a: "Independent apps built by passionate people, not corporations.".into() },
             FaqItem { q: "Who is behind this?".into(), a: "People like you.".into() },
         ];
-        faq("FAQ", items, &faq_items, "", Bundle { html: String::new(), css: String::new(), js: String::new() })
+        faq("FAQ", items, "", Bundle { html: String::new(), css: String::new(), js: String::new() }, &faq_items)
     }
 }
 

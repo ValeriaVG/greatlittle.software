@@ -1,0 +1,109 @@
+.about {
+    max-width: var(--wrap-max);
+    margin: 0 auto;
+    padding: var(--space-lg) var(--space-lg) var(--space-xxl);
+}
+.about-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: clamp(2rem, 6vw, 3.75rem);
+    line-height: 0.95;
+    margin: 0 0 var(--space-xl);
+}
+.about-photo {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    float: left;
+    margin: 0 var(--space-lg) var(--space-sm) 0;
+    shape-outside: circle(50%);
+}
+@media (max-width: 640px) {
+    .about-photo {
+        width: 160px;
+        height: 160px;
+
+
+    }
+}
+.about-intro {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding-bottom: var(--space-xxl);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--color-ink);
+}
+.about-intro p {
+    margin: 0 0 1.15rem;
+}
+.about-intro a {
+    color: var(--color-ink);
+    text-underline-offset: 3px;
+}
+.about-intro a:hover {
+    color: var(--color-ink-strong);
+}
+.about-timeline {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+    position: relative;
+}
+.about-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.6875rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-border);
+}
+.about-timeline-entry {
+    position: relative;
+    padding-left: var(--space-xl);
+    padding-bottom: var(--space-lg);
+}
+.about-timeline-entry:last-child {
+    padding-bottom: 0;
+}
+.about-timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0.35rem;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 50%;
+    background: var(--color-ink);
+    border: 3px solid var(--color-bg);
+    box-sizing: border-box;
+}
+.about-timeline-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+.about-timeline-date {
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-subtle);
+}
+.about-timeline-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1.25rem;
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+.about-timeline-desc {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-size: 1rem;
+    line-height: 1.55;
+}
