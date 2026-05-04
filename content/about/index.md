@@ -48,7 +48,7 @@ And these are the criteria for Great Little Software.
 
 ## The 50 Years Plan
 
-Imagine being paid a salary to work on your own product from the comfort of your own home with a team of other people who work on their own projects. They help each other and when one succeeds — the whole company benefits from it, not the investors. And if a person or a team wants to eject — they're more than welcome to, then the cradle company continues to benefit from its investment portfolio, allowing it to hire more builders and fund more projects.
+Imagine being paid a salary to work on your own product from the comfort of your own home (or an office, if they prefer) with a team of other people who work on their own projects. They help each other and when one succeeds — the whole company benefits from it, not the investors. And if a person or a team wants to eject — they're more than welcome to, then the cradle company continues to benefit from its investment portfolio, allowing it to hire more builders and fund more projects.
 
 I am well aware that building such a grand vision will take a very long time. I spent the last 1.5 years trying to build and bring my own little app to market, reading every book about marketing I can get my hands on and trying to apply it all with intermittent success.
 
@@ -56,7 +56,7 @@ Unfortunately for me, Great Little Software is what I want to spend the rest of 
 
 Before a portfolio of projects can pay anyone else's salary, I have to learn how to make small ethical projects profitable.
 
-Obviously, we are a few successful projects away from this grand vision, but Great Little Software isn't built in a day.
+Obviously, Great Little Software isn't built in a day.
 
 Every interview and every published article directly contribute to the mission: support small independent software creators.
 
