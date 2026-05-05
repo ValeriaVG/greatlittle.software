@@ -99,6 +99,9 @@ impl Post {
     pub fn description(&self) -> &str {
         &self.fm.description
     }
+    pub fn body_html(&self) -> &str {
+        &self.body_html
+    }
     fn author(&self) -> String {
         if self.fm.author.is_empty() { SITE_NAME.into() } else { self.fm.author.clone() }
     }

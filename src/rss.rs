@@ -44,11 +44,26 @@ fn render(posts: &[Post]) -> String {
 fn push_item(out: &mut String, post: &Post) {
     out.push_str("    <item>\n");
     out.push_str(&format!("      <title>{}</title>\n", escape_html(post.title())));
-    out.push_str(&format!("      <description>{}</description>\n", escape_html(post.description())));
     out.push_str(&format!("      <link>{}</link>\n", post.canonical()));
     out.push_str(&format!("      <guid>{}</guid>\n", post.canonical()));
     out.push_str(&format!("      <pubDate>{}</pubDate>\n", rss_date(post.lastmod())));
+    let content = item_content(post);
+    out.push_str(&format!("      <description><![CDATA[{content}]]></description>\n"));
     out.push_str("    </item>\n");
+}
+
+fn item_content(post: &Post) -> String {
+    let mut out = String::new();
+    let cover = post.cover_url();
+    if !cover.is_empty() {
+        out.push_str(&format!(
+            "<img src=\"{}\" alt=\"{}\"/>",
+            cover,
+            escape_html(post.cover_alt())
+        ));
+    }
+    out.push_str(post.body_html());
+    out
 }
 
 fn rss_date(raw: &str) -> String {
