@@ -18,11 +18,7 @@ pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::
 }
 
 fn render(posts: &[Post]) -> String {
-    let last_build = posts
-        .iter()
-        .map(|p| rss_date(p.lastmod()))
-        .max()
-        .unwrap_or_default();
+    let last_build = now_rfc822();
 
     let mut out = String::new();
     out.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -33,6 +29,7 @@ fn render(posts: &[Post]) -> String {
     out.push_str(&format!("    <link>{SITE_URL}/blog/</link>\n"));
     out.push_str(&format!("    <lastBuildDate>{last_build}</lastBuildDate>\n"));
     out.push_str("    <atom:link href=\"https://greatlittle.software/rss.xml\" rel=\"self\" type=\"application/rss+xml\"/>\n");
+    out.push_str(&format!("    <image>\n      <url>{SITE_URL}/assets/icon.png</url>\n      <title>{}</title>\n      <link>{SITE_URL}/blog/</link>\n    </image>\n", escape_html(FEED_TITLE)));
     for post in posts {
         push_item(&mut out, post);
     }
@@ -87,7 +84,68 @@ fn rss_date(raw: &str) -> String {
         "12" => "Dec",
         _ => return raw.to_string(),
     };
-    format!("{d} {month} {y} 00:00:00 +0000")
+    let time = raw
+        .get(11..19)
+        .map(|t| format!("{t} +0000"))
+        .unwrap_or_else(|| "00:00:00 +0000".into());
+    format!("{d} {month} {y} {time}")
+}
+
+fn now_rfc822() -> String {
+    let secs = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let mut remaining = secs as i64;
+    let mut year: u32 = 1970;
+    loop {
+        let yd: i64 = if is_leap(year) { 366 } else { 365 };
+        if remaining < yd * 86_400 {
+            break;
+        }
+        remaining -= yd * 86_400;
+        year += 1;
+    }
+    let is_ly = is_leap(year);
+    let days_in_month: [i64; 12] = if is_ly {
+        [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    } else {
+        [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    };
+    let mut month_idx: usize = 0;
+    for (i, &dim) in days_in_month.iter().enumerate() {
+        if remaining < dim * 86_400 {
+            month_idx = i;
+            break;
+        }
+        remaining -= dim * 86_400;
+    }
+    let day = remaining / 86_400 + 1;
+    remaining %= 86_400;
+    let hour = remaining / 3600;
+    remaining %= 3600;
+    let minute = remaining / 60;
+    let second = remaining % 60;
+    let month_name = match month_idx {
+        0 => "Jan",
+        1 => "Feb",
+        2 => "Mar",
+        3 => "Apr",
+        4 => "May",
+        5 => "Jun",
+        6 => "Jul",
+        7 => "Aug",
+        8 => "Sep",
+        9 => "Oct",
+        10 => "Nov",
+        11 => "Dec",
+        _ => "Jan",
+    };
+    format!("{day:02} {month_name} {year} {hour:02}:{minute:02}:{second:02} +0000")
+}
+
+fn is_leap(y: u32) -> bool {
+    (y % 4 == 0 && y % 100 != 0) || y % 400 == 0
 }
 
 #[cfg(test)]
@@ -96,7 +154,8 @@ mod tests {
 
     #[test]
     fn rss_date_format() {
-        assert_eq!(rss_date("2026-04-19T16:15:24Z"), "19 Apr 2026 00:00:00 +0000");
+        assert_eq!(rss_date("2026-04-19T16:15:24Z"), "19 Apr 2026 16:15:24 +0000");
+        assert_eq!(rss_date("2026-04-19"), "19 Apr 2026 00:00:00 +0000");
         assert_eq!(rss_date(""), "");
     }
 
