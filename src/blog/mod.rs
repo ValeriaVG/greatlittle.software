@@ -93,6 +93,12 @@ impl Post {
     pub fn cover_alt(&self) -> &str {
         &self.fm.cover.alt
     }
+    pub fn title(&self) -> &str {
+        &self.fm.title
+    }
+    pub fn description(&self) -> &str {
+        &self.fm.description
+    }
     fn author(&self) -> String {
         if self.fm.author.is_empty() { SITE_NAME.into() } else { self.fm.author.clone() }
     }
