@@ -294,7 +294,10 @@ fn render_into(out: &mut String, parts: &[Part], vars: &mut HashMap<String, Valu
                     Some(Value::Repeat(r)) => r.clone(),
                     _ => Vec::new(),
                 };
-                for row in rows {
+                for (i, row) in rows.into_iter().enumerate() {
+                    if i > 0 && matches!(esc, Escape::Json) {
+                        out.push(',');
+                    }
                     let prev = vars.insert(var.clone(), Value::Group(row));
                     render_into(out, body, vars, esc);
                     match prev {
@@ -458,6 +461,32 @@ mod tests {
         vars.insert("a".into(), scalar("X"));
         vars.insert("b".into(), scalar("Y"));
         assert_eq!(render_html("  {a}\n<hr/>\n{b}  ", &mut vars), "  X\n<hr/>\nY  ");
+    }
+
+    #[test]
+    fn for_loop_inserts_comma_separator_in_json_mode() {
+        let mut vars = HashMap::new();
+        let rows: Vec<HashMap<String, String>> = ["a", "b"].iter().map(|x| {
+            let mut m = HashMap::new();
+            m.insert("v".into(), (*x).into());
+            m
+        }).collect();
+        vars.insert("items".into(), Value::Repeat(rows));
+        let out = render(&parse_template("[<!--for x in items-->{x.v}<!--/for-->]"), &mut vars, Escape::Json);
+        assert_eq!(out, "[a,b]");
+    }
+
+    #[test]
+    fn for_loop_no_comma_in_html_mode() {
+        let mut vars = HashMap::new();
+        let rows: Vec<HashMap<String, String>> = ["a", "b"].iter().map(|x| {
+            let mut m = HashMap::new();
+            m.insert("v".into(), (*x).into());
+            m
+        }).collect();
+        vars.insert("items".into(), Value::Repeat(rows));
+        let out = render_html("[<!--for x in items-->{x.v}<!--/for-->]", &mut vars);
+        assert_eq!(out, "[ab]");
     }
 
     #[test]
