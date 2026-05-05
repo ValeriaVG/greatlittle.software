@@ -6,13 +6,13 @@ use crate::blog::{collect_posts, Post};
 use crate::theme::SITE_URL;
 use crate::html::escape_html;
 
-const FEED_TITLE: &str = "Great Little Software Blog";
+const FEED_TITLE: &str = "Great Little Software";
 const FEED_DESCRIPTION: &str = "Stories, notes and field reports about indie software.";
 
 pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::Result<String> {
     let posts = collect_posts(content_root, include_drafts)?;
     let xml = render(&posts);
-    let out = out_root.join("rss.xml");
+    let out = out_root.join("feed.xml");
     fs::write(&out, xml)?;
     Ok(out.display().to_string())
 }
@@ -28,7 +28,7 @@ fn render(posts: &[Post]) -> String {
     out.push_str(&format!("    <description>{}</description>\n", escape_html(FEED_DESCRIPTION)));
     out.push_str(&format!("    <link>{SITE_URL}/blog/</link>\n"));
     out.push_str(&format!("    <lastBuildDate>{last_build}</lastBuildDate>\n"));
-    out.push_str("    <atom:link href=\"https://greatlittle.software/rss.xml\" rel=\"self\" type=\"application/rss+xml\"/>\n");
+    out.push_str("    <atom:link href=\"https://greatlittle.software/feed.xml\" rel=\"self\" type=\"application/rss+xml\"/>\n");
     out.push_str(&format!("    <image>\n      <url>{SITE_URL}/assets/icon.png</url>\n      <title>{}</title>\n      <link>{SITE_URL}/blog/</link>\n    </image>\n", escape_html(FEED_TITLE)));
     for post in posts {
         push_item(&mut out, post);
