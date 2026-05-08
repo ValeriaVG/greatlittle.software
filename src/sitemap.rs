@@ -25,6 +25,7 @@ fn render(posts: &[Post]) -> String {
     out.push_str("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
     push_url(&mut out, &format!("{SITE_URL}/"), &blog_lastmod);
     push_url(&mut out, &format!("{SITE_URL}/about/"), "");
+    push_url(&mut out, &format!("{SITE_URL}/privacy/"), "");
     push_url(&mut out, &format!("{SITE_URL}/blog/"), &blog_lastmod);
     for post in posts {
         push_url(&mut out, &post.canonical(), &lastmod_date(post.lastmod()));
@@ -57,10 +58,11 @@ mod tests {
     }
 
     #[test]
-    fn render_includes_home_about_blog_and_posts() {
+    fn render_includes_home_about_privacy_blog_and_posts() {
         let xml = render(&[]);
         assert!(xml.contains("<loc>https://greatlittle.software/</loc>"));
         assert!(xml.contains("<loc>https://greatlittle.software/about/</loc>"));
+        assert!(xml.contains("<loc>https://greatlittle.software/privacy/</loc>"));
         assert!(xml.contains("<loc>https://greatlittle.software/blog/</loc>"));
         assert!(xml.starts_with("<?xml"));
     }

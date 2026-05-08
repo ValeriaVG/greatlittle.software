@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use greatlittle_software::{about, blog, dev, home, html::finalize, rss, sitemap};
+use greatlittle_software::{about, blog, dev, home, html::finalize, privacy, rss, sitemap};
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = std::env::args().collect();
@@ -64,6 +64,9 @@ fn main() -> std::io::Result<()> {
 
     let about_out = about::build(content, dist)?;
     println!("wrote {about_out}");
+
+    let privacy_out = privacy::build(content, dist)?;
+    println!("wrote {privacy_out}");
 
     let sitemap_out = sitemap::build(content, dist, false)?;
     println!("wrote {sitemap_out}");

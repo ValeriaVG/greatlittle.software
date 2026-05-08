@@ -1,0 +1,36 @@
+.privacy {
+    max-width: var(--wrap-max);
+    margin: 0 auto;
+    padding: var(--space-lg) var(--space-lg) var(--space-xxl);
+}
+.privacy h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: clamp(2rem, 6vw, 3.75rem);
+    line-height: 0.95;
+    margin: 0 0 var(--space-xl);
+}
+.privacy ul {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 0 0 0 var(--space-md);
+    list-style: disc;
+}
+.privacy li {
+    margin-bottom: var(--space-sm);
+    line-height: 1.6;
+}
+.privacy p {
+    max-width: 44rem;
+    margin: 0 0 1.15rem;
+    line-height: 1.7;
+}
+.privacy a {
+    color: var(--color-ink);
+    text-underline-offset: 3px;
+}
+.privacy a:hover {
+    color: var(--color-ink-strong);
+}
