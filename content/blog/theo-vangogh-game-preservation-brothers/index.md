@@ -46,7 +46,7 @@ But I imagine building them wasn't easy at all.
 ## A hobby for decades
 "Finding time to invest in such hobby is always challenging against demands of a day job, family and other hobbies." - says Bogdan - "I've been chipping away on vangogh for almost a decade now and can easily see myself working on this until I die - there's an endless supply of ideas and improvements to work on!"
 
-Being motivated by the work itself is impressive and I admire his ability to do it for so long. And while removing the pressure of making profit made his software better, limited time and unlimited ideas "that have to be rationalized and implemented" are still a challenge.
+Being motivated by the work itself is impressive and I admire his ability to do it for so long. And while removing the pressure of making profit helped, limited time and unlimited ideas "that have to be rationalized and implemented" are still a challenge.
 
 But Bogdan seem to have cracked the secret of maintaing focus, flow and joy and I think it has something to do with his principles.
 Which are:
@@ -74,7 +74,7 @@ AI might've sped up the development, but when there's no market to go to, no inv
 
 "I've recently got into DRM-free Steam and Epic Games Store games. I've been a die-hard DRM-free user and avoided Steam and EGS, assuming most (if not all) games have some form of DRM, but turns out significant amount of games are DRM-free on those platforms. What's more important for me - significant amount of games _I would like to own/play_ are DRM-free! If I'd known that earlier - I'd build vangogh in a more store-agnostic way. Right now - vangogh is focused on GOG games and theo (client for vangogh) can install games from vangogh, Steam or EGS (those two options bypass vangogh and install directly from the source). I'm working on adding ability to self-host DRM-free Steam and EGS games though and expect this will happen later this year." - shared Bogdan.
 
-As for me, I think the last time I thought about DRM in the games was when you had to buy them on the CDs, after that, to my own shame, I've assumed that DRMs are the necessary evil, and "it is what it is" for a gamer. On vangogh's screenshot, I've noticed "Arcanum" - a steam-punk RPG I never got to finish because the version I was playing was crashing at a certain point all the time. I always wondered how it ends, so perhaps that could be the first one to relive. That is once I get a bigger storage for my home server, my *babynuc*, a refurbed mini PC I use for experiments couldn't possibly handle the whole GOG collection.
+As for me, I think the last time I thought about DRM in the games was when you had to buy them on the CDs, after that, to my own shame, I've assumed that DRMs are the necessary evil, and "it is what it is" for a gamer. On vangogh's screenshot, I've noticed "Arcanum" - a steam-punk RPG I never got to finish because the version I was playing was crashing at a certain point all the time. I always wondered how it ends, so perhaps that could be the first one to relive. That is once I get a bigger storage for my home server, my *babynuc*, a refurbed mini PC I use for experiments, couldn't possibly handle the whole GOG collection.
 
 And perhaps get a steam deck with a controller too.
 Bogdan is planning to give theo a GUI ("and it should be fast, appealing and work with gamepad") and add cloud saves between theo and vangogh ("a must").
