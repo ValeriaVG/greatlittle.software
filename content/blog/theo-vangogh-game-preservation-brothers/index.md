@@ -83,14 +83,4 @@ Bogdan is planning to give theo a GUI ("and it should be fast, appealing and wor
 
 Give [vangogh](https://github.com/arelate/vangogh) and [theo](https://github.com/arelate/theo) a try and, if you're up for it, make your own contribution to preserving games dev masterpieces.
 
-As theo & vangogh are great little software.
-
-
-
-
-
-
-
-
-
-
+As theo & vangogh are great little duo.
