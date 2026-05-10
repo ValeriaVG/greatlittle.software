@@ -59,8 +59,53 @@ fn item_content(post: &Post) -> String {
             escape_html(post.cover_alt())
         ));
     }
-    out.push_str(post.body_html());
+    out.push_str(&resolve_relative_urls(post.body_html(), &post.canonical()));
     out
+}
+
+fn resolve_relative_urls(html: &str, base_url: &str) -> String {
+    let base = base_url.trim_end_matches('/');
+    let mut out = String::with_capacity(html.len());
+    let mut pos = 0;
+    while let Some(i) = html[pos..].find("src=\"") {
+        let start = pos + i;
+        out.push_str(&html[pos..start + 5]);
+        pos = start + 5;
+        if let Some(end) = html[pos..].find('"') {
+            let val_start = pos;
+            let val_end = pos + end;
+            let val = &html[val_start..val_end];
+            out.push_str(&make_absolute(val, base));
+            pos = val_end;
+        }
+    }
+    out.push_str(&html[pos..]);
+    let mut out2 = String::with_capacity(out.len());
+    let mut pos = 0;
+    while let Some(i) = out[pos..].find("href=\"") {
+        let start = pos + i;
+        out2.push_str(&out[pos..start + 6]);
+        pos = start + 6;
+        if let Some(end) = out[pos..].find('"') {
+            let val_start = pos;
+            let val_end = pos + end;
+            let val = &out[val_start..val_end];
+            out2.push_str(&make_absolute(val, base));
+            pos = val_end;
+        }
+    }
+    out2.push_str(&out[pos..]);
+    out2
+}
+
+fn make_absolute(val: &str, base: &str) -> String {
+    if val.starts_with("http") || val.starts_with('#') || val.contains(':') {
+        val.to_string()
+    } else if val.starts_with('/') {
+        format!("{SITE_URL}{val}")
+    } else {
+        format!("{base}/{val}")
+    }
 }
 
 fn rss_date(raw: &str) -> String {
@@ -166,5 +211,31 @@ mod tests {
         assert!(xml.contains("<channel>"));
         assert!(xml.contains(&format!("<link>{SITE_URL}/blog/</link>")));
         assert!(xml.contains("atom:link"));
+    }
+
+    #[test]
+    fn resolve_relative_urls_makes_bare_paths_absolute() {
+        let html = "<img src=\"image.png\"/><a href=\"doc.html\">link</a>";
+        let base = "https://example.com/blog/my-post";
+        let result = resolve_relative_urls(html, base);
+        assert!(result.contains("src=\"https://example.com/blog/my-post/image.png\""));
+        assert!(result.contains("href=\"https://example.com/blog/my-post/doc.html\""));
+    }
+
+    #[test]
+    fn resolve_relative_urls_preserves_absolute() {
+        let html = "<img src=\"https://other.site/img.png\"/><a href=\"#anchor\">skip</a>";
+        let base = "https://example.com/blog/post";
+        let result = resolve_relative_urls(html, base);
+        assert!(result.contains("src=\"https://other.site/img.png\""));
+        assert!(result.contains("href=\"#anchor\""));
+    }
+
+    #[test]
+    fn resolve_relative_urls_handles_root_relative() {
+        let html = "<a href=\"/about/\">about</a>";
+        let base = "https://example.com/blog/post";
+        let result = resolve_relative_urls(html, base);
+        assert!(result.contains(&format!("href=\"{SITE_URL}/about/\"")));
     }
 }
