@@ -22,6 +22,7 @@ preview-build out=".preview-dist":
     cargo run --features preview -- preview build {{out}}
 
 deploy: build
+    command -v worker-build || cargo install worker-build
     npx wrangler deploy
 
 write title description="":

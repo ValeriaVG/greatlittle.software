@@ -1,5 +1,5 @@
 [workspace]
-members = ["macros"]
+members = ["macros", "worker"]
 
 [package]
 name = "greatlittle_software"

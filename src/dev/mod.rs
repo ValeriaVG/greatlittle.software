@@ -27,7 +27,7 @@ pub fn run(port: u16, include_drafts: bool) -> std::io::Result<()> {
 
     let watch_paths = vec![
         PathBuf::from("content"),
-        PathBuf::from("assets"),
+        PathBuf::from("public"),
         PathBuf::from("src/about"),
         PathBuf::from("src/blog"),
         PathBuf::from("src/home"),
@@ -185,9 +185,7 @@ fn serve(mut stream: TcpStream, out: &Path, version: &AtomicU64) -> std::io::Res
             let md_path = file_path.join("index.md");
             if md_path.is_file() {
                 let bytes = fs::read(&md_path)?;
-                let tokens = estimate_tokens(&String::from_utf8_lossy(&bytes));
-                let header = format!("x-markdown-tokens: {tokens}");
-                return write_response(&mut stream, 200, "text/markdown; charset=utf-8", &bytes, &[&header]);
+                return write_response(&mut stream, 200, "text/markdown; charset=utf-8", &bytes, &[]);
             }
         }
         file_path = file_path.join("index.html");
@@ -195,9 +193,7 @@ fn serve(mut stream: TcpStream, out: &Path, version: &AtomicU64) -> std::io::Res
         let md_path = PathBuf::from(format!("{}.md", file_path.display()));
         if md_path.is_file() {
             let bytes = fs::read(&md_path)?;
-            let tokens = estimate_tokens(&String::from_utf8_lossy(&bytes));
-            let header = format!("x-markdown-tokens: {tokens}");
-            return write_response(&mut stream, 200, "text/markdown; charset=utf-8", &bytes, &[&header]);
+            return write_response(&mut stream, 200, "text/markdown; charset=utf-8", &bytes, &[]);
         }
     }
 
@@ -266,12 +262,32 @@ fn write_response_with_vary(stream: &mut TcpStream, code: u16, ct: &str, body: &
     Ok(())
 }
 
-fn estimate_tokens(text: &str) -> usize {
-    (text.len() as f64 * 0.4) as usize
-}
-
 fn write_status(stream: &mut TcpStream, code: u16, msg: &str) -> std::io::Result<()> {
     write_response(stream, code, "text/plain", msg.as_bytes(), &[])
+}
+
+fn content_type(p: &Path) -> &'static str {
+    match p.extension().and_then(|e| e.to_str()) {
+        Some("html") => "text/html",
+        Some("css") => "text/css",
+        Some("js") => "application/javascript",
+        Some("json") => "application/json",
+        Some("xml") => "application/xml",
+        Some("svg") => "image/svg+xml",
+        Some("png") => "image/png",
+        Some("jpg") | Some("jpeg") => "image/jpeg",
+        Some("gif") => "image/gif",
+        Some("webp") => "image/webp",
+        Some("ico") => "image/x-icon",
+        Some("wav") => "audio/wav",
+        Some("mp3") => "audio/mpeg",
+        Some("ogg") => "audio/ogg",
+        Some("woff") => "font/woff",
+        Some("woff2") => "font/woff2",
+        Some("ttf") => "font/ttf",
+        Some("txt") | Some("md") => "text/plain",
+        _ => "application/octet-stream",
+    }
 }
 
 #[cfg(test)]
@@ -302,12 +318,6 @@ mod tests {
     }
 
     #[test]
-    fn estimate_tokens_approximates_char_count() {
-        assert_eq!(estimate_tokens("hello"), 2);
-        assert_eq!(estimate_tokens(""), 0);
-    }
-
-    #[test]
     fn accept_header_detects_markdown() {
         let head = "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: text/markdown\r\n\r\n";
         assert!(head.lines().any(|line| {
@@ -331,29 +341,5 @@ mod tests {
                 v == "text/markdown" || v.starts_with("text/markdown;")
             })
         }));
-    }
-}
-
-fn content_type(p: &Path) -> &'static str {
-    match p.extension().and_then(|e| e.to_str()) {
-        Some("html") => "text/html",
-        Some("css") => "text/css",
-        Some("js") => "application/javascript",
-        Some("json") => "application/json",
-        Some("xml") => "application/xml",
-        Some("svg") => "image/svg+xml",
-        Some("png") => "image/png",
-        Some("jpg") | Some("jpeg") => "image/jpeg",
-        Some("gif") => "image/gif",
-        Some("webp") => "image/webp",
-        Some("ico") => "image/x-icon",
-        Some("wav") => "audio/wav",
-        Some("mp3") => "audio/mpeg",
-        Some("ogg") => "audio/ogg",
-        Some("woff") => "font/woff",
-        Some("woff2") => "font/woff2",
-        Some("ttf") => "font/ttf",
-        Some("txt") | Some("md") => "text/plain",
-        _ => "application/octet-stream",
     }
 }

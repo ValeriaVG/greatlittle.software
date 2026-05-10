@@ -3,4 +3,5 @@ dist
 .dev-dist
 .preview-dist
 .wrangler
+worker/build
 .DS_Store
