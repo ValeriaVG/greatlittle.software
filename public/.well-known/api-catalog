@@ -1,0 +1,13 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://greatlittle.software/.well-known/api-catalog",
+      "item": [
+        {
+          "href": "https://greatlittle.software/feed.xml",
+          "type": "application/rss+xml"
+        }
+      ]
+    }
+  ]
+}

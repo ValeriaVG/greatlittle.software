@@ -12,8 +12,22 @@ async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Response>
         return handle_markdown(req, env).await;
     }
 
+    let url = req.url()?;
+    let path = url.path();
+
     let assets: Fetcher = env.assets("ASSETS")?;
-    assets.fetch_request(req).await
+    let mut resp = assets.fetch_request(req).await?;
+
+    if path == "/" || path == "/index.html" {
+        let headers = resp.headers().clone();
+        headers.set(
+            "Link",
+            "</.well-known/api-catalog>; rel=\"api-catalog\", </feed.xml>; rel=\"alternate\"; type=\"application/rss+xml\"",
+        )?;
+        resp = resp.with_headers(headers);
+    }
+
+    Ok(resp)
 }
 
 fn wants_markdown(accept: &str) -> bool {
