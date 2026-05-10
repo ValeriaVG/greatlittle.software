@@ -82,6 +82,10 @@ fn rebuild(out_root: &Path, version: &AtomicU64, include_drafts: bool) -> std::i
             fs::remove_dir_all(&dst)?;
         }
         copy_dir(assets, &dst)?;
+        let robots = assets.join("robots.txt");
+        if robots.exists() {
+            fs::copy(&robots, out_root.join("robots.txt"))?;
+        }
     }
     version.fetch_add(1, Ordering::SeqCst);
     Ok(())

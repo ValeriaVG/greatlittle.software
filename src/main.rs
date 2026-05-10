@@ -78,6 +78,11 @@ fn main() -> std::io::Result<()> {
     if assets.exists() {
         copy_dir(assets, &dist.join("assets"))?;
         println!("copied {} to {}", assets.display(), dist.join("assets").display());
+        let robots = assets.join("robots.txt");
+        if robots.exists() {
+            fs::copy(&robots, dist.join("robots.txt"))?;
+            println!("copied robots.txt to dist root");
+        }
     }
     Ok(())
 }
