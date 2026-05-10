@@ -1,0 +1,5 @@
+User-Agent: *
+Content-signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+
+Sitemap: https://greatlittle.software/sitemap.xml
