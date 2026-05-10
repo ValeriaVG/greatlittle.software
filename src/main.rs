@@ -1,7 +1,9 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use greatlittle_software::{about, blog, dev, home, html::finalize, privacy, rss, sitemap};
+use greatlittle_software::{
+    about, blog, dev, home, html::finalize, markdown, privacy, rss, sitemap,
+};
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = std::env::args().collect();
@@ -51,6 +53,16 @@ fn main() -> std::io::Result<()> {
 
     let dist = Path::new("dist");
     fs::create_dir_all(dist)?;
+    let public = Path::new("public");
+    if public.exists() {
+        copy_dir(public, dist)?;
+        println!(
+            "copied {} to {}",
+            public.display(),
+            dist.display()
+        );
+    }
+
     let content = Path::new("content");
 
     let page = finalize(home::render(content, false));
@@ -74,16 +86,10 @@ fn main() -> std::io::Result<()> {
     let rss_out = rss::build(content, dist, false)?;
     println!("wrote {rss_out}");
 
-    let assets = Path::new("assets");
-    if assets.exists() {
-        copy_dir(assets, &dist.join("assets"))?;
-        println!("copied {} to {}", assets.display(), dist.join("assets").display());
-        let robots = assets.join("robots.txt");
-        if robots.exists() {
-            fs::copy(&robots, dist.join("robots.txt"))?;
-            println!("copied robots.txt to dist root");
-        }
+    for written in markdown::build(content, dist, false)? {
+        println!("wrote {written}");
     }
+
     Ok(())
 }
 

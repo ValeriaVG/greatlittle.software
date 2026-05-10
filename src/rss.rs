@@ -29,7 +29,7 @@ fn render(posts: &[Post]) -> String {
     out.push_str(&format!("    <link>{SITE_URL}/blog/</link>\n"));
     out.push_str(&format!("    <lastBuildDate>{last_build}</lastBuildDate>\n"));
     out.push_str("    <atom:link href=\"https://greatlittle.software/feed.xml\" rel=\"self\" type=\"application/rss+xml\"/>\n");
-    out.push_str(&format!("    <image>\n      <url>{SITE_URL}/assets/icon.png</url>\n      <title>{}</title>\n      <link>{SITE_URL}/blog/</link>\n    </image>\n", escape_html(FEED_TITLE)));
+    out.push_str(&format!("    <image>\n      <url>{SITE_URL}/icon.png</url>\n      <title>{}</title>\n      <link>{SITE_URL}/blog/</link>\n    </image>\n", escape_html(FEED_TITLE)));
     for post in posts {
         push_item(&mut out, post);
     }

@@ -59,7 +59,7 @@
     font-style: normal;
     font-weight: 700;
     font-display: swap;
-    src: url('/assets/fonts/big-shoulders-display-700.woff2') format('woff2');
+    src: url('/fonts/big-shoulders-display-700.woff2') format('woff2');
 }
 
 *, *::before, *::after { box-sizing: border-box; }

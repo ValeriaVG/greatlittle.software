@@ -111,6 +111,24 @@ impl Post {
     fn draft_marker(&self) -> &'static str {
         if self.fm.is_draft { "draft" } else { "" }
     }
+    pub fn has_cover(&self) -> bool {
+        !self.fm.cover.src.is_empty()
+    }
+    pub fn cover_src(&self) -> &str {
+        &self.fm.cover.src
+    }
+    pub fn created_at(&self) -> &str {
+        &self.fm.created_at
+    }
+    pub fn updated_at(&self) -> &str {
+        &self.fm.updated_at
+    }
+    pub fn author_name(&self) -> &str {
+        &self.fm.author
+    }
+    pub fn source_dir(&self) -> &Path {
+        &self.dir
+    }
 }
 
 fn crumb(href: &str, label: impl Into<String>) -> BreadcrumbsItem {

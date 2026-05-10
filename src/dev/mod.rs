@@ -11,7 +11,7 @@ use std::time::{Duration, Instant, SystemTime};
 use macros::html_template;
 
 use crate::html::template;
-use crate::{about, blog, home, html::finalize, privacy};
+use crate::{about, blog, home, html::finalize, markdown, privacy};
 
 pub const DEV_OUT: &str = ".dev-dist";
 
@@ -67,6 +67,11 @@ fn rebuild(out_root: &Path, version: &AtomicU64, include_drafts: bool) -> std::i
         fs::remove_dir_all(&blog_out)?;
     }
     fs::create_dir_all(out_root)?;
+    let public = Path::new("public");
+    if public.exists() {
+        copy_dir(public, out_root)?;
+    }
+
     let content = Path::new("content");
     let page = finalize(home::render(content, include_drafts));
     fs::write(out_root.join("index.html"), &page)?;
@@ -75,18 +80,10 @@ fn rebuild(out_root: &Path, version: &AtomicU64, include_drafts: bool) -> std::i
     println!("wrote {about_written}");
     let privacy_written = privacy::build(content, out_root)?;
     println!("wrote {privacy_written}");
-    let assets = Path::new("assets");
-    if assets.exists() {
-        let dst = out_root.join("assets");
-        if dst.exists() {
-            fs::remove_dir_all(&dst)?;
-        }
-        copy_dir(assets, &dst)?;
-        let robots = assets.join("robots.txt");
-        if robots.exists() {
-            fs::copy(&robots, out_root.join("robots.txt"))?;
-        }
+    for written in markdown::build(content, out_root, include_drafts)? {
+        println!("wrote {written}");
     }
+
     version.fetch_add(1, Ordering::SeqCst);
     Ok(())
 }
@@ -156,9 +153,21 @@ fn serve(mut stream: TcpStream, out: &Path, version: &AtomicU64) -> std::io::Res
     };
     let path = target.split('?').next().unwrap_or("/");
 
+    let accept_markdown = head.lines().any(|line| {
+        let lower = line.to_ascii_lowercase();
+        if !lower.starts_with("accept:") {
+            return false;
+        }
+        let values = &line[7..];
+        values.split(',').any(|v| {
+            let v = v.trim();
+            v == "text/markdown" || v.starts_with("text/markdown;")
+        })
+    });
+
     if path == "/_reload" {
         let v = version.load(Ordering::SeqCst).to_string();
-        return write_response(&mut stream, 200, "text/plain", v.as_bytes());
+        return write_response(&mut stream, 200, "text/plain", &v.as_bytes(), &[]);
     }
 
     if path.contains("..") {
@@ -172,7 +181,24 @@ fn serve(mut stream: TcpStream, out: &Path, version: &AtomicU64) -> std::io::Res
         out.join(trimmed)
     };
     if file_path.is_dir() {
+        if accept_markdown {
+            let md_path = file_path.join("index.md");
+            if md_path.is_file() {
+                let bytes = fs::read(&md_path)?;
+                let tokens = estimate_tokens(&String::from_utf8_lossy(&bytes));
+                let header = format!("x-markdown-tokens: {tokens}");
+                return write_response(&mut stream, 200, "text/markdown; charset=utf-8", &bytes, &[&header]);
+            }
+        }
         file_path = file_path.join("index.html");
+    } else if accept_markdown {
+        let md_path = PathBuf::from(format!("{}.md", file_path.display()));
+        if md_path.is_file() {
+            let bytes = fs::read(&md_path)?;
+            let tokens = estimate_tokens(&String::from_utf8_lossy(&bytes));
+            let header = format!("x-markdown-tokens: {tokens}");
+            return write_response(&mut stream, 200, "text/markdown; charset=utf-8", &bytes, &[&header]);
+        }
     }
 
     let bytes = match fs::read(&file_path) {
@@ -185,7 +211,12 @@ fn serve(mut stream: TcpStream, out: &Path, version: &AtomicU64) -> std::io::Res
     } else {
         bytes
     };
-    write_response(&mut stream, 200, ct, &body)
+    let vary = if ct == "text/html" || ct == "text/markdown" {
+        "vary: accept\r\n"
+    } else {
+        ""
+    };
+    write_response_with_vary(&mut stream, 200, ct, &body, vary)
 }
 
 fn inject_reload(html: &str) -> String {
@@ -201,22 +232,46 @@ fn inject_reload(html: &str) -> String {
     }
 }
 
-fn write_response(stream: &mut TcpStream, code: u16, ct: &str, body: &[u8]) -> std::io::Result<()> {
+fn write_response(stream: &mut TcpStream, code: u16, ct: &str, body: &[u8], extra_headers: &[&str]) -> std::io::Result<()> {
+    let reason = match code {
+        200 => "OK",
+        _ => "",
+    };
+    let mut header = format!(
+        "HTTP/1.1 {code} {reason}\r\nContent-Type: {ct}\r\nContent-Length: {}\r\nCache-Control: no-store\r\n",
+        body.len()
+    );
+    for h in extra_headers {
+        header.push_str(h);
+        header.push_str("\r\n");
+    }
+    header.push_str("Connection: close\r\n\r\n");
+    stream.write_all(header.as_bytes())?;
+    stream.write_all(body)?;
+    Ok(())
+}
+
+fn write_response_with_vary(stream: &mut TcpStream, code: u16, ct: &str, body: &[u8], vary: &str) -> std::io::Result<()> {
     let reason = match code {
         200 => "OK",
         _ => "",
     };
     let header = format!(
-        "HTTP/1.1 {code} {reason}\r\nContent-Type: {ct}\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n",
-        body.len()
+        "HTTP/1.1 {code} {reason}\r\nContent-Type: {ct}\r\nContent-Length: {}\r\nCache-Control: no-store\r\n{}Connection: close\r\n\r\n",
+        body.len(),
+        vary
     );
     stream.write_all(header.as_bytes())?;
     stream.write_all(body)?;
     Ok(())
 }
 
+fn estimate_tokens(text: &str) -> usize {
+    (text.len() as f64 * 0.4) as usize
+}
+
 fn write_status(stream: &mut TcpStream, code: u16, msg: &str) -> std::io::Result<()> {
-    write_response(stream, code, "text/plain", msg.as_bytes())
+    write_response(stream, code, "text/plain", msg.as_bytes(), &[])
 }
 
 #[cfg(test)]
@@ -244,6 +299,38 @@ mod tests {
         let out = inject_reload("plain");
         assert!(out.starts_with("plain<script>"));
         assert!(out.ends_with("</script>"));
+    }
+
+    #[test]
+    fn estimate_tokens_approximates_char_count() {
+        assert_eq!(estimate_tokens("hello"), 2);
+        assert_eq!(estimate_tokens(""), 0);
+    }
+
+    #[test]
+    fn accept_header_detects_markdown() {
+        let head = "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: text/markdown\r\n\r\n";
+        assert!(head.lines().any(|line| {
+            let lower = line.to_ascii_lowercase();
+            if !lower.starts_with("accept:") { return false; }
+            lower[7..].split(',').any(|v| {
+                let v = v.trim();
+                v == "text/markdown" || v.starts_with("text/markdown;")
+            })
+        }));
+    }
+
+    #[test]
+    fn accept_header_ignores_html_only() {
+        let head = "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: text/html\r\n\r\n";
+        assert!(!head.lines().any(|line| {
+            let lower = line.to_ascii_lowercase();
+            if !lower.starts_with("accept:") { return false; }
+            lower[7..].split(',').any(|v| {
+                let v = v.trim();
+                v == "text/markdown" || v.starts_with("text/markdown;")
+            })
+        }));
     }
 }
 

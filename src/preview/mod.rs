@@ -42,7 +42,7 @@ html_template!(wrapper_page, "src/preview/wrapper");
 pub const PREVIEW_OUT: &str = ".preview-dist";
 const GLOBALS_CSS: &str = "src/preview/globals.css";
 const GLOBALS_JS: &str = "src/preview/globals.js";
-const ASSETS_DIR: &str = "assets";
+const ASSETS_DIR: &str = "public";
 
 fn sorted_previews() -> Vec<&'static Preview> {
     let mut v: Vec<&Preview> = inventory::iter::<Preview>().collect();
@@ -152,7 +152,7 @@ fn inject_reload(html: &str) -> String {
 
 pub fn run(port: u16) -> std::io::Result<()> {
     let version = Arc::new(AtomicU64::new(0));
-    let watch_paths = vec![PathBuf::from("src"), PathBuf::from("assets")];
+    let watch_paths = vec![PathBuf::from("src"), PathBuf::from("public")];
     {
         let v = Arc::clone(&version);
         thread::spawn(move || watcher_loop(watch_paths, v));
@@ -224,18 +224,16 @@ fn serve(mut stream: TcpStream, version: &AtomicU64) -> std::io::Result<()> {
         let body = inject_reload(&render_index());
         return write_resp(&mut stream, 200, "text/html", body.as_bytes());
     }
-    if let Some(rest) = path.strip_prefix("/assets/") {
-        let asset = PathBuf::from(ASSETS_DIR).join(rest);
-        if let Ok(bytes) = fs::read(&asset) {
-            return write_resp(&mut stream, 200, content_type(&asset), &bytes);
-        }
-        return write_resp(&mut stream, 404, "text/plain", b"not found");
-    }
     if let Some(rest) = path.strip_prefix("/p/") {
         let name = url_decode(rest.trim_end_matches('/'));
         if let Some(body) = render_preview(&name) {
             return write_resp(&mut stream, 200, "text/html", inject_reload(&body).as_bytes());
         }
+    }
+    let relative = path.strip_prefix('/').unwrap_or(path);
+    let asset = PathBuf::from(ASSETS_DIR).join(relative);
+    if let Ok(bytes) = fs::read(&asset) {
+        return write_resp(&mut stream, 200, content_type(&asset), &bytes);
     }
     write_resp(&mut stream, 404, "text/plain", b"not found")
 }
