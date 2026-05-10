@@ -2,6 +2,10 @@ name = "great-little-software"
 main = "worker/build/worker/shim.mjs"
 compatibility_date = "2026-04-19"
 
+routes = [
+  { pattern = "greatlittle.software/*", zone_name = "greatlittle.software" }
+]
+
 [assets]
 directory = "./dist"
 binding = "ASSETS"
