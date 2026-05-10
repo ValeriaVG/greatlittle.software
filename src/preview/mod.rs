@@ -314,24 +314,5 @@ pub fn build(out: &Path) -> std::io::Result<()> {
         let body = render_preview(p.path).expect("preview missing after lookup");
         fs::write(page_dir.join("index.html"), body)?;
     }
-    let assets = Path::new(ASSETS_DIR);
-    if assets.exists() {
-        copy_dir(assets, &out.join("assets"))?;
-    }
-    Ok(())
-}
-
-fn copy_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
-    fs::create_dir_all(dst)?;
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        let from = entry.path();
-        let to = dst.join(entry.file_name());
-        if entry.file_type()?.is_dir() {
-            copy_dir(&from, &to)?;
-        } else {
-            fs::copy(&from, &to)?;
-        }
-    }
     Ok(())
 }
