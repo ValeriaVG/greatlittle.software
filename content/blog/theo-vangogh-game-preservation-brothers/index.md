@@ -2,7 +2,7 @@
 title: "Theo & Vangogh: game preservation brothers"
 description: "An open-source self-hosted DRM-free library of your GOG game collection"
 keywords: [games, self-hosted, open-source]
-is_draft: true
+is_draft: false
 author: Valeria Viana Gusmao
 category: games
 created_at: 2026-05-09T06:42:51Z
