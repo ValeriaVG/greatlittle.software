@@ -1,6 +1,6 @@
 ---
 title: "Rackula: Server Rack Planner"
-description: ""
+description: "The chilling adventures of count Rackula in the modern days of vibe-coding"
 keywords: [webapp, server, homelab]
 is_draft: false
 author: Valeria Viana Gusmao
