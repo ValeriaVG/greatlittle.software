@@ -17,7 +17,7 @@ product:
         - label: Try psikat
           url: https://psikat.com
         - label: Join psikat Discord
-          url: https://discord.gg/2a7jghQ2W
+          url: https://discord.gg/89xegJZRvR
 ---
 
 >...I've always known that I've been missing out and the modern day just lacks that special charm...
@@ -108,5 +108,5 @@ I bet it would be intentionally unconventional for a good reason.
 Or in the words of its unconventional creator Redas aka Michael Palace aka holoflash:
 > If using psikat can help at least one other person be creative and express themselves in their own voice, I’ve accomplished everything I could ever dream of.
 
-I encourage you to try it out at [psikat.com](https://psikat.com) and join [Discord](https://discord.gg/2a7jghQ2W).
+I encourage you to try it out at [psikat.com](https://psikat.com) and join [Discord](https://discord.gg/89xegJZRvR).
 It is a great little software.
