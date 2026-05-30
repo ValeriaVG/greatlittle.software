@@ -21,10 +21,14 @@ pub fn render(content_root: &Path, include_drafts: bool) -> Bundle {
     let mut og_image = String::new();
     let mut og_image_alt = String::new();
     if let Some(featured) = posts.first() {
-        let cards = blog::cards_bundle(std::slice::from_ref(featured));
+        let featured_cards = Bundle {
+            html: blog::featured_card_for(featured),
+            css: blog::card_css(),
+            js: blog::card_js(),
+        };
         let recent = blog::cards_bundle(&posts[1..]);
         let has_recent = if recent.html.is_empty() { "" } else { "yes" };
-        body = merge(body, latest(cards, has_recent, recent));
+        body = merge(body, latest(featured_cards, has_recent, recent));
         og_image = featured.cover_url();
         og_image_alt = featured.cover_alt().to_string();
     }

@@ -39,6 +39,8 @@ mod previews {
             "",
             "https://picsum.photos/seed/greatlittle/800/450",
             "Another placeholder cover",
+            "lazy",
+            "",
             "2026-03-02",
             "March 2, 2026",
             "Another Great Little Article",

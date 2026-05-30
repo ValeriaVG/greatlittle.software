@@ -300,6 +300,28 @@ fn card_for(post: &Post) -> String {
         post.draft_marker(),
         &cover_url,
         &post.fm.cover.alt,
+        "lazy",
+        "",
+        &post.fm.created_at,
+        &post.date_display,
+        &post.fm.title,
+        &post.fm.description,
+    )
+}
+
+pub fn featured_card_for(post: &Post) -> String {
+    let cover_url = if post.fm.cover.src.is_empty() {
+        String::new()
+    } else {
+        format!("/blog/{}/{}", post.slug, post.fm.cover.src)
+    };
+    card(
+        &post.slug,
+        post.draft_marker(),
+        &cover_url,
+        &post.fm.cover.alt,
+        "",
+        "high",
         &post.fm.created_at,
         &post.date_display,
         &post.fm.title,
