@@ -22,7 +22,11 @@ mod previews {
             "A Great Little Example Post",
             "A short description that gives a taste of what the article is about.",
         ));
-        let featured = Bundle { html: featured_html, css: card_css(), js: card_js() };
+        let featured = Bundle {
+            html: featured_html,
+            css: card_css(),
+            js: card_js(),
+        };
 
         let mut recent_html = String::new();
         recent_html.push_str(&card(
@@ -49,8 +53,12 @@ mod previews {
             "Field Report",
             "Short observations from the indie software world.",
         ));
-        let recent = Bundle { html: recent_html, css: String::new(), js: String::new() };
+        let recent = Bundle {
+            html: recent_html,
+            css: String::new(),
+            js: String::new(),
+        };
 
-        latest(featured, "yes", recent)
+        latest("Featured masterpiece", featured, "yes", recent)
     }
 }

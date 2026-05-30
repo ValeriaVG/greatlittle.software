@@ -14,23 +14,43 @@ mod previews {
 
     fn crumbs() -> Bundle {
         let items = [
-            BreadcrumbsItem { href: "/".into(), label: "Home".into(), current: String::new() },
-            BreadcrumbsItem { href: "/blog/".into(), label: "Blog".into(), current: String::new() },
+            BreadcrumbsItem {
+                href: "/".into(),
+                label: "Home".into(),
+                current: String::new(),
+            },
+            BreadcrumbsItem {
+                href: "/blog/".into(),
+                label: "Blog".into(),
+                current: String::new(),
+            },
             BreadcrumbsItem {
                 href: String::new(),
                 label: "A Great Little Example Post".into(),
                 current: "page".into(),
             },
         ];
-        Bundle { html: breadcrumbs(&items), css: breadcrumbs_css(), js: breadcrumbs_js() }
+        Bundle {
+            html: breadcrumbs(&items),
+            css: breadcrumbs_css(),
+            js: breadcrumbs_js(),
+        }
     }
 
     fn body() -> Bundle {
-        Bundle { html: BODY_HTML.into(), css: String::new(), js: String::new() }
+        Bundle {
+            html: BODY_HTML.into(),
+            css: String::new(),
+            js: String::new(),
+        }
     }
 
     fn news() -> Bundle {
-        Bundle { html: newsletter(), css: newsletter_css(), js: newsletter_js() }
+        Bundle {
+            html: newsletter(),
+            css: newsletter_css(),
+            js: newsletter_js(),
+        }
     }
 
     fn related_cards() -> Bundle {
@@ -46,28 +66,45 @@ mod previews {
             "Another Great Little Article",
             "A short description of another article.",
         );
-        Bundle { html, css: card_css(), js: card_js() }
+        Bundle {
+            html,
+            css: card_css(),
+            js: card_js(),
+        }
     }
 
     fn rel() -> Bundle {
-        related("yes", related_cards())
+        related("yes", "More stories", related_cards())
     }
 
     fn empty_related() -> Bundle {
-        related("", Bundle { html: String::new(), css: String::new(), js: String::new() })
+        related(
+            "",
+            "More thoughts",
+            Bundle {
+                html: String::new(),
+                css: String::new(),
+                js: String::new(),
+            },
+        )
     }
 
     fn sample_article() -> ArticleArticle {
         ArticleArticle {
             title: "A Great Little Example Post".into(),
             url: "https://greatlittle.software/blog/example-post/".into(),
-            description: "A short description that gives a taste of what the article is about.".into(),
+            description: "A short description that gives a taste of what the article is about."
+                .into(),
             author: "Great Little Software".into(),
         }
     }
 
     fn empty_product() -> ArticleProduct {
-        ArticleProduct { name: String::new(), cover: String::new(), blurb: String::new() }
+        ArticleProduct {
+            name: String::new(),
+            cover: String::new(),
+            blurb: String::new(),
+        }
     }
 
     fn sample_product() -> ArticleProduct {
@@ -80,8 +117,14 @@ mod previews {
 
     fn sample_actions() -> Vec<ArticleAction> {
         vec![
-            ArticleAction { label: "Try it".into(), url: "https://psikat.com".into() },
-            ArticleAction { label: "Join Discord".into(), url: "https://discord.gg/example".into() },
+            ArticleAction {
+                label: "Try it".into(),
+                url: "https://psikat.com".into(),
+            },
+            ArticleAction {
+                label: "Join Discord".into(),
+                url: "https://discord.gg/example".into(),
+            },
         ]
     }
 
@@ -111,7 +154,11 @@ mod previews {
 
     #[preview("Article/Default/No cover")]
     fn no_cover() -> Bundle {
-        let cover = ArticleCover { src: String::new(), alt: String::new(), url: String::new() };
+        let cover = ArticleCover {
+            src: String::new(),
+            alt: String::new(),
+            url: String::new(),
+        };
         article(
             crumbs(),
             "",

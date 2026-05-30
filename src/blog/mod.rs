@@ -3,11 +3,11 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 use macros::html_template;
-use pulldown_cmark::{html as cmark_html, Options, Parser};
+use pulldown_cmark::{Options, Parser, html as cmark_html};
 use serde::Deserialize;
 
-use crate::html::{finalize, template, Bundle};
-use crate::theme::{layout, layout_with_image, SITE_URL};
+use crate::html::{Bundle, finalize, template};
+use crate::theme::{SITE_URL, layout, layout_with_image};
 
 mod article;
 mod breadcrumbs;
@@ -59,6 +59,7 @@ struct Product {
 struct FrontMatter {
     title: String,
     description: String,
+    category: String,
     keywords: Vec<String>,
     is_draft: bool,
     created_at: String,
@@ -103,10 +104,18 @@ impl Post {
         &self.body_html
     }
     fn author(&self) -> String {
-        if self.fm.author.is_empty() { SITE_NAME.into() } else { self.fm.author.clone() }
+        if self.fm.author.is_empty() {
+            SITE_NAME.into()
+        } else {
+            self.fm.author.clone()
+        }
     }
     fn updated(&self) -> &str {
-        if self.fm.updated_at.is_empty() { &self.fm.created_at } else { &self.fm.updated_at }
+        if self.fm.updated_at.is_empty() {
+            &self.fm.created_at
+        } else {
+            &self.fm.updated_at
+        }
     }
     fn draft_marker(&self) -> &'static str {
         if self.fm.is_draft { "draft" } else { "" }
@@ -129,14 +138,28 @@ impl Post {
     pub fn source_dir(&self) -> &Path {
         &self.dir
     }
+    pub fn has_product(&self) -> bool {
+        !self.fm.product.name.is_empty()
+    }
+    pub fn category(&self) -> &str {
+        &self.fm.category
+    }
 }
 
 fn crumb(href: &str, label: impl Into<String>) -> BreadcrumbsItem {
-    BreadcrumbsItem { href: href.into(), label: label.into(), current: String::new() }
+    BreadcrumbsItem {
+        href: href.into(),
+        label: label.into(),
+        current: String::new(),
+    }
 }
 
 fn current_crumb(label: impl Into<String>) -> BreadcrumbsItem {
-    BreadcrumbsItem { href: String::new(), label: label.into(), current: "page".into() }
+    BreadcrumbsItem {
+        href: String::new(),
+        label: label.into(),
+        current: "page".into(),
+    }
 }
 
 pub fn collect_posts(content_root: &Path, include_drafts: bool) -> io::Result<Vec<Post>> {
@@ -172,10 +195,18 @@ pub fn cards_bundle(posts: &[Post]) -> Bundle {
     for post in posts {
         html.push_str(&card_for(post));
     }
-    Bundle { html, css: card_css(), js: card_js() }
+    Bundle {
+        html,
+        css: card_css(),
+        js: card_js(),
+    }
 }
 
-pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::Result<Vec<String>> {
+pub fn build(
+    content_root: &Path,
+    out_root: &Path,
+    include_drafts: bool,
+) -> io::Result<Vec<String>> {
     let blog_out = out_root.join("blog");
     let posts = collect_posts(content_root, include_drafts)?;
     if posts.is_empty() && !content_root.join("blog").exists() {
@@ -202,7 +233,11 @@ pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::
     cards_css.push_str(&coming_soon_css());
     let mut cards_js = card_js();
     cards_js.push_str(&coming_soon_js());
-    let cards = Bundle { html: cards_html, css: cards_css, js: cards_js };
+    let cards = Bundle {
+        html: cards_html,
+        css: cards_css,
+        js: cards_js,
+    };
     let crumbs = crumbs_bundle(&[crumb("/", "Home"), current_crumb("Blog")]);
     let idx = index(crumbs, cards);
     let page_title = format!("{BLOG_TITLE} | {SITE_NAME}");
@@ -237,7 +272,10 @@ fn render_post_page(post: &Post, all_posts: &[Post]) -> String {
         .product
         .actions
         .iter()
-        .map(|a| ArticleAction { label: a.label.clone(), url: a.url.clone() })
+        .map(|a| ArticleAction {
+            label: a.label.clone(),
+            url: a.url.clone(),
+        })
         .collect();
     let body = Bundle {
         html: post.body_html.clone(),
@@ -250,16 +288,36 @@ fn render_post_page(post: &Post, all_posts: &[Post]) -> String {
         current_crumb(post.fm.title.clone()),
     ]);
     let keywords = post.fm.keywords.join(", ");
-    let related_posts: Vec<&Post> = all_posts.iter().filter(|p| p.slug != post.slug).collect();
+    let related_posts: Vec<&Post> = all_posts
+        .iter()
+        .filter(|p| p.slug != post.slug && p.has_product() == post.has_product())
+        .collect();
     let related_cards = if related_posts.is_empty() {
-        Bundle { html: String::new(), css: String::new(), js: String::new() }
+        Bundle {
+            html: String::new(),
+            css: String::new(),
+            js: String::new(),
+        }
     } else {
         let related_html: String = related_posts.iter().map(|p| card_for(p)).collect();
-        Bundle { html: related_html, css: card_css(), js: card_js() }
+        Bundle {
+            html: related_html,
+            css: card_css(),
+            js: card_js(),
+        }
     };
     let has_cards = if related_posts.is_empty() { "" } else { "yes" };
-    let rel = related(has_cards, related_cards);
-    let news = Bundle { html: newsletter(), css: newsletter_css(), js: newsletter_js() };
+    let related_eyebrow = if post.has_product() {
+        "More stories"
+    } else {
+        "More thoughts"
+    };
+    let rel = related(has_cards, related_eyebrow, related_cards);
+    let news = Bundle {
+        html: newsletter(),
+        css: newsletter_css(),
+        js: newsletter_js(),
+    };
     let art = article(
         crumbs,
         post.draft_marker(),
@@ -286,7 +344,11 @@ fn render_post_page(post: &Post, all_posts: &[Post]) -> String {
 }
 
 fn crumbs_bundle(items: &[BreadcrumbsItem]) -> Bundle {
-    Bundle { html: breadcrumbs(items), css: breadcrumbs_css(), js: breadcrumbs_js() }
+    Bundle {
+        html: breadcrumbs(items),
+        css: breadcrumbs_css(),
+        js: breadcrumbs_js(),
+    }
 }
 
 fn card_for(post: &Post) -> String {
@@ -348,7 +410,13 @@ fn parse_post(slug: String, dir: PathBuf, raw: &str) -> Post {
         .unwrap_or_else(|e| panic!("invalid frontmatter in {slug}: {e}"));
     let body_html = render_markdown(body_md);
     let date_display = format_iso_date(&fm.created_at);
-    Post { slug, dir, fm, date_display, body_html }
+    Post {
+        slug,
+        dir,
+        fm,
+        date_display,
+        body_html,
+    }
 }
 
 fn split_frontmatter(raw: &str) -> (&str, &str) {

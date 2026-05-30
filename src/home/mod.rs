@@ -3,8 +3,8 @@ use std::path::Path;
 use macros::html_template;
 
 use crate::blog;
-use crate::html::{template, Bundle};
-use crate::theme::{home_layout_with_image, SITE_URL};
+use crate::html::{Bundle, template};
+use crate::theme::{SITE_URL, home_layout_with_image};
 
 mod faq;
 mod latest;
@@ -16,7 +16,11 @@ const DESCRIPTION: &str = "Collection of indie apps, ideas, tooling and stories 
 pub fn render(content_root: &Path, include_drafts: bool) -> Bundle {
     let posts = blog::collect_posts(content_root, include_drafts).unwrap_or_default();
 
-    let mut body = Bundle { html: String::new(), css: String::new(), js: String::new() };
+    let mut body = Bundle {
+        html: String::new(),
+        css: String::new(),
+        js: String::new(),
+    };
 
     let mut og_image = String::new();
     let mut og_image_alt = String::new();
@@ -28,7 +32,12 @@ pub fn render(content_root: &Path, include_drafts: bool) -> Bundle {
         };
         let recent = blog::cards_bundle(&posts[1..]);
         let has_recent = if recent.html.is_empty() { "" } else { "yes" };
-        body = merge(body, latest(featured_cards, has_recent, recent));
+        let eyebrow = if featured.has_product() {
+            "Featured masterpiece"
+        } else {
+            "Recent thoughts"
+        };
+        body = merge(body, latest(eyebrow, featured_cards, has_recent, recent));
         og_image = featured.cover_url();
         og_image_alt = featured.cover_alt().to_string();
     }
@@ -37,11 +46,14 @@ pub fn render(content_root: &Path, include_drafts: bool) -> Bundle {
         body = merge(body, faq_data);
     }
 
-    body = merge(body, Bundle {
-        html: blog::newsletter(),
-        css: blog::newsletter_css(),
-        js: blog::newsletter_js(),
-    });
+    body = merge(
+        body,
+        Bundle {
+            html: blog::newsletter(),
+            css: blog::newsletter_css(),
+            js: blog::newsletter_js(),
+        },
+    );
 
     home_layout_with_image(
         TITLE,
