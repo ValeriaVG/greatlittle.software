@@ -5,6 +5,7 @@ category: marketing
 keywords: [sales, marketing]
 is_draft: false
 created_at: 2026-05-30T05:52:16Z
+author: Valeria Viana Gusmao
 cover:
     src: cover.png
     alt: "😈 EvilCorp fictional logo stamped over commercials varying from AI slop to thoughtful messages with push to buy a book and a Promotion tag from mail counting 1829 unread emails"
@@ -41,7 +42,7 @@ Let me show you why with some examples.
 
 The first assumption that one needs to make to be able to properly violate other people is to convince oneself that they're not people. That whatever is being done is done to a faceless mass, a general number, not individuals. We are born with a certain failsafe mechanism in place that prevents us from harming each other unless we have to protect ourselves. At least that is my understanding of the claim Marshall B. Rosenberg makes in one of my favourite books: "Non-violent communication: the language of life". 
 
-So for us to hurt someone with premediation with need to first coerce ourselves to believe that we're doing the right thing.
+So for us to hurt someone with premediation we'd need to first coerce ourselves to believe that we're doing the right thing.
 
 And the easiest way to do so is to focus on metrics: it's not 200 human beings suffering anymore, it's 200 users. It's just a number. And the number is, by definition, infinite.
 
@@ -95,11 +96,11 @@ The cafe I told you about is small and simple:
 
 But it has everything you need to have a great "fika". And the owner made it so cozy and welcoming - obviously awesome.
 
-This is the bar. Metrics and checklists are great supplementary tools, but nothing beats placing something you're proud of in front of people in need without tricking them into wanting it.
+This is the bar.
 
 ## The Kaizen of Great Little Software
 
-Don't like SOAC? Draw inspiration from Gene Kim's"The Unicorn Project" novel and its five ideals of DevOps:
+Don't like SOAC? Draw inspiration from Gene Kim's "The Unicorn Project" novel and its five ideals of DevOps:
 
 1. Locality and Simplicity
 2. Focus, Flow and Joy
