@@ -406,7 +406,7 @@ fn copy_assets(src: &Path, dst: &Path) -> io::Result<()> {
 
 fn parse_post(slug: String, dir: PathBuf, raw: &str) -> Post {
     let (fm_yaml, body_md) = split_frontmatter(raw);
-    let fm: FrontMatter = serde_yaml::from_str(fm_yaml)
+    let fm: FrontMatter = yaml_serde::from_str(fm_yaml)
         .unwrap_or_else(|e| panic!("invalid frontmatter in {slug}: {e}"));
     let body_html = render_markdown(body_md);
     let date_display = format_iso_date(&fm.created_at);
@@ -486,7 +486,7 @@ mod tests {
     #[test]
     fn parses_nested_cover() {
         let y = "title: \"T\"\ncover:\n    src: a.png\n    alt: alt text\n";
-        let fm: FrontMatter = serde_yaml::from_str(y).unwrap();
+        let fm: FrontMatter = yaml_serde::from_str(y).unwrap();
         assert_eq!(fm.title, "T");
         assert_eq!(fm.cover.src, "a.png");
         assert_eq!(fm.cover.alt, "alt text");
@@ -495,14 +495,14 @@ mod tests {
     #[test]
     fn parses_keyword_array() {
         let y = "keywords: [a, b, \"c d\"]\n";
-        let fm: FrontMatter = serde_yaml::from_str(y).unwrap();
+        let fm: FrontMatter = yaml_serde::from_str(y).unwrap();
         assert_eq!(fm.keywords, vec!["a", "b", "c d"]);
     }
 
     #[test]
     fn ignores_unknown_fields() {
         let y = "title: T\nlink: https://example.com/\n";
-        let fm: FrontMatter = serde_yaml::from_str(y).unwrap();
+        let fm: FrontMatter = yaml_serde::from_str(y).unwrap();
         assert_eq!(fm.title, "T");
     }
 

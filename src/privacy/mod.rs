@@ -34,7 +34,7 @@ fn render(content_root: &Path) -> Bundle {
     let index_md = content_root.join("privacy").join("index.md");
     let raw = fs::read_to_string(&index_md).unwrap_or_default();
     let (fm_yaml, body_md) = split_frontmatter(&raw);
-    let _fm: PrivacyFrontMatter = serde_yaml::from_str(fm_yaml)
+    let _fm: PrivacyFrontMatter = yaml_serde::from_str(fm_yaml)
         .unwrap_or_else(|e| panic!("invalid frontmatter in content/privacy/index.md: {e}"));
 
     let body_html = render_markdown(body_md.trim());

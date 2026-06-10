@@ -94,7 +94,7 @@ fn home_md(content_root: &Path, include_drafts: bool) -> String {
 }
 
 fn push_str_faq(fm_yaml: &str) -> String {
-    let fm: MdFaqFrontMatter = match serde_yaml::from_str(fm_yaml) {
+    let fm: MdFaqFrontMatter = match yaml_serde::from_str(fm_yaml) {
         Ok(f) => f,
         Err(_) => return String::new(),
     };
@@ -118,7 +118,7 @@ fn about_md(content_root: &Path) -> String {
     let index_md = content_root.join("about").join("index.md");
     let raw = fs::read_to_string(&index_md).unwrap_or_default();
     let (fm_yaml, body_md) = split_frontmatter(&raw);
-    let fm: MdAboutFrontMatter = serde_yaml::from_str(fm_yaml)
+    let fm: MdAboutFrontMatter = yaml_serde::from_str(fm_yaml)
         .unwrap_or_else(|e| panic!("invalid frontmatter in content/about/index.md: {e}"));
 
     let title = if fm.title.is_empty() { "About" } else { &fm.title };
@@ -156,7 +156,7 @@ fn privacy_md(content_root: &Path) -> String {
     let index_md = content_root.join("privacy").join("index.md");
     let raw = fs::read_to_string(&index_md).unwrap_or_default();
     let (fm_yaml, body_md) = split_frontmatter(&raw);
-    let fm: MdPrivacyFrontMatter = serde_yaml::from_str(fm_yaml)
+    let fm: MdPrivacyFrontMatter = yaml_serde::from_str(fm_yaml)
         .unwrap_or_else(|e| panic!("invalid frontmatter in content/privacy/index.md: {e}"));
 
     let title = if fm.title.is_empty() { "Privacy Policy" } else { &fm.title };

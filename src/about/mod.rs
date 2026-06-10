@@ -59,7 +59,7 @@ fn render(content_root: &Path) -> Bundle {
     let index_md = content_root.join("about").join("index.md");
     let raw = fs::read_to_string(&index_md).unwrap_or_default();
     let (fm_yaml, body_md) = split_frontmatter(&raw);
-    let fm: AboutFrontMatter = serde_yaml::from_str(fm_yaml)
+    let fm: AboutFrontMatter = yaml_serde::from_str(fm_yaml)
         .unwrap_or_else(|e| panic!("invalid frontmatter in content/about/index.md: {e}"));
 
     let body_html = render_markdown(body_md.trim());
@@ -192,7 +192,7 @@ mod tests {
     #[test]
     fn parses_timeline_entries() {
         let y = "timeline:\n  - date: \"2025-01\"\n    title: Spark\n    description: Idea\n";
-        let fm: AboutFrontMatter = serde_yaml::from_str(y).unwrap();
+        let fm: AboutFrontMatter = yaml_serde::from_str(y).unwrap();
         assert_eq!(fm.timeline.len(), 1);
         assert_eq!(fm.timeline[0].date, "2025-01");
         assert_eq!(fm.timeline[0].title, "Spark");
@@ -202,7 +202,7 @@ mod tests {
     #[test]
     fn empty_frontmatter_defaults() {
         let y = "";
-        let fm: AboutFrontMatter = serde_yaml::from_str(y).unwrap();
+        let fm: AboutFrontMatter = yaml_serde::from_str(y).unwrap();
         assert!(fm.timeline.is_empty());
         assert_eq!(fm.title, "");
     }

@@ -28,7 +28,7 @@ pub fn load(content_root: &Path) -> Option<Bundle> {
     }
     let raw = std::fs::read_to_string(&index_md).ok()?;
     let (fm_yaml, body_md) = split_frontmatter(&raw);
-    let fm: FaqFrontMatter = serde_yaml::from_str(fm_yaml)
+    let fm: FaqFrontMatter = yaml_serde::from_str(fm_yaml)
         .unwrap_or_else(|e| panic!("invalid frontmatter in content/index.md: {e}"));
 
     let mut items_html = String::new();
@@ -132,7 +132,7 @@ mod tests {
     #[test]
     fn parses_faq_items() {
         let y = "faq:\n  - q: \"What?\"\n    a: \"That.\"\n";
-        let fm: FaqFrontMatter = serde_yaml::from_str(y).unwrap();
+        let fm: FaqFrontMatter = yaml_serde::from_str(y).unwrap();
         assert_eq!(fm.faq.len(), 1);
         assert_eq!(fm.faq[0].q, "What?");
         assert_eq!(fm.faq[0].a, "That.");
@@ -141,7 +141,7 @@ mod tests {
     #[test]
     fn empty_frontmatter_defaults() {
         let y = "";
-        let fm: FaqFrontMatter = serde_yaml::from_str(y).unwrap();
+        let fm: FaqFrontMatter = yaml_serde::from_str(y).unwrap();
         assert!(fm.faq.is_empty());
         assert_eq!(fm.faq_title, "");
     }
