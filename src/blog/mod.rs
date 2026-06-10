@@ -3,10 +3,10 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 use macros::html_template;
-use pulldown_cmark::{Options, Parser, html as cmark_html};
 use serde::Deserialize;
 
 use crate::html::{Bundle, finalize, template};
+use crate::markdown::{render_markdown, split_frontmatter};
 use crate::theme::{SITE_URL, layout, layout_with_image};
 
 mod article;
@@ -180,7 +180,8 @@ pub fn collect_posts(content_root: &Path, include_drafts: bool) -> io::Result<Ve
             continue;
         }
         let raw = fs::read_to_string(&index_md)?;
-        let post = parse_post(slug, dir, &raw);
+        let post = parse_post(slug, dir, &raw)
+            .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
         if post.fm.is_draft && !include_drafts {
             continue;
         }
@@ -404,46 +405,20 @@ fn copy_assets(src: &Path, dst: &Path) -> io::Result<()> {
     Ok(())
 }
 
-fn parse_post(slug: String, dir: PathBuf, raw: &str) -> Post {
-    let (fm_yaml, body_md) = split_frontmatter(raw);
-    let fm: FrontMatter = yaml_serde::from_str(fm_yaml)
-        .unwrap_or_else(|e| panic!("invalid frontmatter in {slug}: {e}"));
+fn parse_post(slug: String, dir: PathBuf, raw: &str) -> Result<Post, String> {
+    let (fm_yaml, body_md) =
+        split_frontmatter(raw).ok_or("missing frontmatter start/end `---` in blog post")?;
+    let fm: FrontMatter =
+        yaml_serde::from_str(fm_yaml).map_err(|e| format!("invalid frontmatter in {slug}: {e}"))?;
     let body_html = render_markdown(body_md);
     let date_display = format_iso_date(&fm.created_at);
-    Post {
+    Ok(Post {
         slug,
         dir,
         fm,
         date_display,
         body_html,
-    }
-}
-
-fn split_frontmatter(raw: &str) -> (&str, &str) {
-    let rest = raw
-        .strip_prefix("---\n")
-        .or_else(|| raw.strip_prefix("---\r\n"))
-        .expect("missing frontmatter start `---`");
-    let end = rest.find("\n---").expect("missing frontmatter end `---`");
-    let fm = &rest[..end];
-    let after = &rest[end + 4..];
-    let body = after
-        .strip_prefix('\n')
-        .or_else(|| after.strip_prefix("\r\n"))
-        .unwrap_or(after);
-    (fm, body)
-}
-
-fn render_markdown(md: &str) -> String {
-    let mut opts = Options::empty();
-    opts.insert(Options::ENABLE_STRIKETHROUGH);
-    opts.insert(Options::ENABLE_TABLES);
-    opts.insert(Options::ENABLE_FOOTNOTES);
-    opts.insert(Options::ENABLE_SMART_PUNCTUATION);
-    let parser = Parser::new_ext(md, opts);
-    let mut out = String::new();
-    cmark_html::push_html(&mut out, parser);
-    out
+    })
 }
 
 fn format_iso_date(iso: &str) -> String {
@@ -474,14 +449,6 @@ fn format_iso_date(iso: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn splits_frontmatter() {
-        let raw = "---\ntitle: Hi\n---\nBody here\n";
-        let (fm, body) = split_frontmatter(raw);
-        assert_eq!(fm, "title: Hi");
-        assert_eq!(body, "Body here\n");
-    }
 
     #[test]
     fn parses_nested_cover() {

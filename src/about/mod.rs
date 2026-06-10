@@ -3,11 +3,11 @@ use std::io;
 use std::path::Path;
 
 use macros::html_template;
-use pulldown_cmark::{html as cmark_html, Options, Parser};
 use serde::Deserialize;
 
-use crate::html::{finalize, template, Bundle};
-use crate::theme::{layout, SITE_URL};
+use crate::html::{Bundle, finalize, template};
+use crate::markdown::{render_markdown, split_frontmatter};
+use crate::theme::{SITE_URL, layout};
 
 html_template!(about, "src/about");
 
@@ -31,7 +31,7 @@ struct AboutFrontMatter {
 }
 
 pub fn build(content_root: &Path, out_root: &Path) -> std::io::Result<String> {
-    let bundle = render(content_root);
+    let bundle = render(content_root).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
     let page = finalize(bundle);
     let out_dir = out_root.join("about");
     fs::create_dir_all(&out_dir)?;
@@ -55,15 +55,20 @@ fn copy_assets(src: &Path, dst: &Path) -> io::Result<()> {
     Ok(())
 }
 
-fn render(content_root: &Path) -> Bundle {
+fn render(content_root: &Path) -> Result<Bundle, String> {
     let index_md = content_root.join("about").join("index.md");
     let raw = fs::read_to_string(&index_md).unwrap_or_default();
-    let (fm_yaml, body_md) = split_frontmatter(&raw);
+    let (fm_yaml, body_md) =
+        split_frontmatter(&raw).ok_or("missing frontmatter in content/about/index.md")?;
     let fm: AboutFrontMatter = yaml_serde::from_str(fm_yaml)
-        .unwrap_or_else(|e| panic!("invalid frontmatter in content/about/index.md: {e}"));
+        .map_err(|e| format!("invalid frontmatter in content/about/index.md: {e}"))?;
 
     let body_html = render_markdown(body_md.trim());
-    let body_bundle = Bundle { html: body_html, css: String::new(), js: String::new() };
+    let body_bundle = Bundle {
+        html: body_html,
+        css: String::new(),
+        js: String::new(),
+    };
     let has_timeline = if fm.timeline.is_empty() { "" } else { "yes" };
 
     let entries: Vec<AboutEntry> = fm
@@ -76,27 +81,20 @@ fn render(content_root: &Path) -> Bundle {
         })
         .collect();
 
-    let title = if fm.title.is_empty() { TITLE } else { &fm.title };
-    let description = if fm.description.is_empty() { DESCRIPTION } else { &fm.description };
+    let title = if fm.title.is_empty() {
+        TITLE
+    } else {
+        &fm.title
+    };
+    let description = if fm.description.is_empty() {
+        DESCRIPTION
+    } else {
+        &fm.description
+    };
 
     let page = about(body_bundle, has_timeline, &entries);
     let canonical = format!("{SITE_URL}/about/");
-    layout(title, description, &canonical, page)
-}
-
-fn render_markdown(md: &str) -> String {
-    if md.is_empty() {
-        return String::new();
-    }
-    let mut opts = Options::empty();
-    opts.insert(Options::ENABLE_STRIKETHROUGH);
-    opts.insert(Options::ENABLE_TABLES);
-    opts.insert(Options::ENABLE_FOOTNOTES);
-    opts.insert(Options::ENABLE_SMART_PUNCTUATION);
-    let parser = Parser::new_ext(md, opts);
-    let mut out = String::new();
-    cmark_html::push_html(&mut out, parser);
-    out
+    Ok(layout(title, description, &canonical, page))
 }
 
 fn format_date(raw: &str) -> String {
@@ -129,30 +127,13 @@ fn format_date(raw: &str) -> String {
     }
 }
 
-fn split_frontmatter(raw: &str) -> (&str, &str) {
-    let rest = raw
-        .strip_prefix("---\n")
-        .or_else(|| raw.strip_prefix("---\r\n"))
-        .unwrap_or_else(|| panic!("missing frontmatter start `---` in content/about/index.md"));
-    let end = rest
-        .find("\n---")
-        .unwrap_or_else(|| panic!("missing frontmatter end `---` in content/about/index.md"));
-    let fm = &rest[..end];
-    let after = &rest[end + 4..];
-    let body = after
-        .strip_prefix('\n')
-        .or_else(|| after.strip_prefix("\r\n"))
-        .unwrap_or(after);
-    (fm, body)
-}
-
 #[cfg(feature = "preview")]
 mod previews {
     use macros::preview;
 
     use crate::html::Bundle;
 
-    use super::{about, AboutEntry};
+    use super::{AboutEntry, about};
 
     #[preview("About")]
     fn default() -> Bundle {
@@ -180,14 +161,6 @@ mod previews {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn splits_frontmatter() {
-        let raw = "---\ntitle: Hi\n---\nBody\n";
-        let (fm, body) = split_frontmatter(raw);
-        assert_eq!(fm, "title: Hi");
-        assert_eq!(body, "Body\n");
-    }
 
     #[test]
     fn parses_timeline_entries() {

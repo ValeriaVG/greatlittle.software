@@ -2,10 +2,14 @@ use std::fs;
 use std::io;
 use std::path::Path;
 
-use crate::blog::{collect_posts, Post};
+use crate::blog::{Post, collect_posts};
 use crate::theme::SITE_URL;
 
-pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::Result<Vec<String>> {
+pub fn build(
+    content_root: &Path,
+    out_root: &Path,
+    include_drafts: bool,
+) -> io::Result<Vec<String>> {
     let mut written = Vec::new();
 
     let home = home_md(content_root, include_drafts);
@@ -52,7 +56,7 @@ pub fn build(content_root: &Path, out_root: &Path, include_drafts: bool) -> io::
 fn home_md(content_root: &Path, include_drafts: bool) -> String {
     let index_md = content_root.join("index.md");
     let raw = fs::read_to_string(&index_md).unwrap_or_default();
-    let (fm_yaml, body_md) = split_frontmatter(&raw);
+    let (fm_yaml, body_md) = split_frontmatter(&raw).unwrap_or(("", &raw));
 
     let mut frontmatter = String::new();
     frontmatter.push_str("---\n");
@@ -66,10 +70,18 @@ fn home_md(content_root: &Path, include_drafts: bool) -> String {
 
     if let Some(featured) = posts.first() {
         body.push_str("## Featured masterpiece\n\n");
-        body.push_str(&format!("### [{}]({})\n\n", featured.title(), featured.canonical()));
+        body.push_str(&format!(
+            "### [{}]({})\n\n",
+            featured.title(),
+            featured.canonical()
+        ));
         body.push_str(&format!("{}\n\n", featured.description()));
         if featured.has_cover() {
-            body.push_str(&format!("![{}]({})\n\n", featured.cover_alt(), featured.cover_url()));
+            body.push_str(&format!(
+                "![{}]({})\n\n",
+                featured.cover_alt(),
+                featured.cover_url()
+            ));
         }
     }
 
@@ -117,11 +129,15 @@ fn push_str_faq(fm_yaml: &str) -> String {
 fn about_md(content_root: &Path) -> String {
     let index_md = content_root.join("about").join("index.md");
     let raw = fs::read_to_string(&index_md).unwrap_or_default();
-    let (fm_yaml, body_md) = split_frontmatter(&raw);
+    let (fm_yaml, body_md) = split_frontmatter(&raw).unwrap_or(("", &raw));
     let fm: MdAboutFrontMatter = yaml_serde::from_str(fm_yaml)
         .unwrap_or_else(|e| panic!("invalid frontmatter in content/about/index.md: {e}"));
 
-    let title = if fm.title.is_empty() { "About" } else { &fm.title };
+    let title = if fm.title.is_empty() {
+        "About"
+    } else {
+        &fm.title
+    };
     let description = if fm.description.is_empty() {
         "The story behind Great Little Software."
     } else {
@@ -155,11 +171,15 @@ fn about_md(content_root: &Path) -> String {
 fn privacy_md(content_root: &Path) -> String {
     let index_md = content_root.join("privacy").join("index.md");
     let raw = fs::read_to_string(&index_md).unwrap_or_default();
-    let (fm_yaml, body_md) = split_frontmatter(&raw);
+    let (fm_yaml, body_md) = split_frontmatter(&raw).unwrap_or(("", &raw));
     let fm: MdPrivacyFrontMatter = yaml_serde::from_str(fm_yaml)
         .unwrap_or_else(|e| panic!("invalid frontmatter in content/privacy/index.md: {e}"));
 
-    let title = if fm.title.is_empty() { "Privacy Policy" } else { &fm.title };
+    let title = if fm.title.is_empty() {
+        "Privacy Policy"
+    } else {
+        &fm.title
+    };
     let description = if fm.description.is_empty() {
         "Privacy policy for Great Little Software."
     } else {
@@ -190,7 +210,11 @@ fn blog_index_md(posts: &[Post]) -> String {
         body.push_str(&format!("## [{}]({})\n\n", post.title(), post.canonical()));
         body.push_str(&format!("{}\n\n", post.description()));
         if post.has_cover() {
-            body.push_str(&format!("![{}]({})\n\n", post.cover_alt(), post.cover_url()));
+            body.push_str(&format!(
+                "![{}]({})\n\n",
+                post.cover_alt(),
+                post.cover_url()
+            ));
         }
     }
     frontmatter.push_str(&body);
@@ -201,7 +225,10 @@ fn post_md(post: &Post) -> String {
     let mut frontmatter = String::new();
     frontmatter.push_str("---\n");
     frontmatter.push_str(&format!("title: {}\n", yaml_escape(post.title())));
-    frontmatter.push_str(&format!("description: {}\n", yaml_escape(post.description())));
+    frontmatter.push_str(&format!(
+        "description: {}\n",
+        yaml_escape(post.description())
+    ));
     frontmatter.push_str(&format!("canonical: {}\n", post.canonical()));
     if post.has_cover() {
         frontmatter.push_str(&format!("image: {}\n", post.cover_url()));
@@ -218,32 +245,45 @@ fn post_md(post: &Post) -> String {
 
     let md_path = post.source_dir().join("index.md");
     let raw = fs::read_to_string(&md_path).unwrap_or_default();
-    let (_, body_md) = split_frontmatter(&raw);
+    let (_, body_md) = split_frontmatter(&raw).unwrap_or(("", &raw));
     frontmatter.push_str(body_md.trim());
     frontmatter.push('\n');
     frontmatter
 }
 
-fn split_frontmatter(raw: &str) -> (&str, &str) {
-    let rest = match raw.strip_prefix("---\n").or_else(|| raw.strip_prefix("---\r\n")) {
-        Some(r) => r,
-        None => return ("", raw),
-    };
-    let end = match rest.find("\n---") {
-        Some(i) => i,
-        None => return ("", raw),
-    };
+pub fn split_frontmatter(raw: &str) -> Option<(&str, &str)> {
+    let rest = raw
+        .strip_prefix("---\n")
+        .or_else(|| raw.strip_prefix("---\r\n"))?;
+    let end = rest.find("\n---")?;
     let fm = &rest[..end];
     let after = &rest[end + 4..];
     let body = after
         .strip_prefix('\n')
         .or_else(|| after.strip_prefix("\r\n"))
         .unwrap_or(after);
-    (fm, body)
+    Some((fm, body))
+}
+
+pub fn render_markdown(md: &str) -> String {
+    if md.is_empty() {
+        return String::new();
+    }
+    use pulldown_cmark::{Options, Parser, html as cmark_html};
+    let mut opts = Options::empty();
+    opts.insert(Options::ENABLE_STRIKETHROUGH);
+    opts.insert(Options::ENABLE_TABLES);
+    opts.insert(Options::ENABLE_FOOTNOTES);
+    opts.insert(Options::ENABLE_SMART_PUNCTUATION);
+    let parser = Parser::new_ext(md, opts);
+    let mut out = String::new();
+    cmark_html::push_html(&mut out, parser);
+    out
 }
 
 fn yaml_escape(s: &str) -> String {
-    if s.contains(':') || s.contains('#') || s.contains('"') || s.contains('\'') || s.contains('\n') {
+    if s.contains(':') || s.contains('#') || s.contains('"') || s.contains('\'') || s.contains('\n')
+    {
         format!("\"{}\"", s.replace('\\', "\\\\").replace('"', "\\\""))
     } else {
         s.to_string()
@@ -298,7 +338,7 @@ mod tests {
     #[test]
     fn split_frontmatter_works() {
         let raw = "---\ntitle: Hi\n---\nBody\n";
-        let (fm, body) = split_frontmatter(raw);
+        let (fm, body) = split_frontmatter(raw).unwrap();
         assert_eq!(fm, "title: Hi");
         assert_eq!(body, "Body\n");
     }
@@ -306,9 +346,7 @@ mod tests {
     #[test]
     fn split_frontmatter_no_frontmatter() {
         let raw = "Just body text\n";
-        let (fm, body) = split_frontmatter(raw);
-        assert_eq!(fm, "");
-        assert_eq!(body, "Just body text\n");
+        assert!(split_frontmatter(raw).is_none());
     }
 
     #[test]
