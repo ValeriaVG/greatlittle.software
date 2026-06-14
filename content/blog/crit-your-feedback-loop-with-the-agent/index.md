@@ -3,9 +3,9 @@ title: "Crit: Your feedback loop with the agent"
 description: Is there a middle ground between vibe-coding and writing code entirely by hand?
 category: devtools
 keywords: [ai, agent, devtools]
-is_draft: true
+is_draft: false
 created_at: 2026-06-12T14:52:31Z
-cover: 
+cover:
   src: screenshot.png
   alt: "Code Review, But for AI. — crit.md promotional image showing a code review interface with a 'Quality Improvement Plan' document analyzing 21 pull requests. The interface displays an executive summary about automated tooling and CLAUDE.md agent prompt rules. Tagline: 'The workflow your agent is missing' and 'Your feedback loop with the agent."
 product:
@@ -18,6 +18,7 @@ product:
     - label: Star on GitHub
       url: https://github.com/tomasz-tomczyk/crit
 ---
+
 > I want it to be lean - it should work with YOU. It works with your IDE, it works with your issue tracker, it doesn't try to change how you work, it just makes it easy to provide feedback and iterate on the output.
 > -- <cite>Tomasz Tomczyk</cite>
 
@@ -25,7 +26,7 @@ Just some years ago we, software developers, were fighting holywars on React vs.
 
 On one side of the fence we have people who claim to be the evolution, intentionally atrophying their ability to produce code by hand and using their AI provider bills as a measuring stick. On the other, we have people who deny AI advancements and brand anyone using LLMs a heretic. This article is for neither. It is for the folks in between, who, just like me, are trying to find a footing in the new reality.
 
-And I think Tomasz Tomczyk, creator of Crit, have a good amount of insight to share on the matter.
+And I think Tomasz Tomczyk, creator of Crit, has a good amount of insight to share on the matter.
 
 ## LGTM = TLDR
 
@@ -35,9 +36,10 @@ Indeed, AI generates a lot of code and fast, definitely a lot faster than a huma
 I too often resorted to blind vibecoding (and then throwing the whole project away) just because reviewing that amount of slop was too much work. And yet writing code entirely by hand felt like refusing to accept autocomplete and linters and going back to the embarrassing early days when I thought that real developers should only use Notepad.
 
 Instead of jumping between two extremes, Tomasz seem to have been determined to find the middle ground. On February 16, 2026, he pushed this commit:
+
 > Single-binary Go CLI for reviewing markdown files with inline comments.
-Browser-based UI with GitHub PR-style commenting, syntax highlighting,
-mermaid diagram support, dark/light themes, and real-time .review.md output.
+> Browser-based UI with GitHub PR-style commenting, syntax highlighting,
+> mermaid diagram support, dark/light themes, and real-time .review.md output.
 
 ![crit.md code review interface showing notification-plan.md with a design decisions table. The table compares options for Queue (Redis Streams chosen over SQS, RabbitMQ), Delivery guarantee, Template engine, and Storage. User @Tomasz comments 'Just use SQS - we're in AWS' on line 20. Sidebar shows document contents including Notification Service, Design Decisions, Database Schema, API, and Worker Design sections](./planreviewer.png)
 
@@ -71,7 +73,7 @@ Crit supports pretty much any agent you can think of and for the outliers, like 
 
 ## The Future
 
-When I asked Tomasz about what he would like to achieve with the project, he said that even if the project stays as it is - he wouldn't mind it because the fact that his creation is used daily and loved is already a huge success. Of course, it doesn't mean that he can't dream big! 
+When I asked Tomasz about what he would like to achieve with the project, he said that even if the project stays as it is - he wouldn't mind it because the fact that his creation is used daily and loved is already a huge success. Of course, it doesn't mean that he can't dream big!
 
 Looking back, Tomasz says that he'd consider more elaborate frameworks if he'd do it all over again: "What started as a simple app for reviewing just plans now functions in 4 different review modes and with a multiplayer option on the web. My agents are still telling me it's fine though!"
 
@@ -79,6 +81,6 @@ And they are absolutely right! But even they can't tell what the future holds. T
 
 "For the local app," he adds, "I'd be interested in exploring a world where it's more of a kanban style work orchestrator, kinda like https://www.conductor.build/, but it'd be a huge scope increase so not sure about it!"
 
-I admire Tomasz's ability to keep himself grounded in reality and to not accept the status quo. 
+I admire Tomasz's ability to keep himself grounded in reality and to not accept the status quo.
 Give Crit a try, see if it fits into your workflow.
 It's a great little software.
