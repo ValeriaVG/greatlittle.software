@@ -3,7 +3,7 @@
     margin: 0 auto;
     padding: 3rem var(--space-lg) var(--space-xxl);
 }
-.home-featured-eyebrow {
+.home-section-eyebrow {
     margin: 0 0 var(--space-md);
     font-size: 0.8125rem;
     letter-spacing: 0.16em;
@@ -38,26 +38,55 @@
     }
 }
 
-.home-recent {
+/* Shared post card grid width on desktop */
+.home-stories .post-list,
+.home-thoughts .post-list {
+    --card-width: calc((var(--wrap-max) - 3 * var(--space-lg)) / 2);
+}
+
+/* Recent stories slider */
+.home-stories {
+    padding: 0 0 var(--space-xxl);
+}
+.home-stories .home-section-eyebrow {
+    padding: 0 max(var(--space-lg), calc((100vw - var(--wrap-max)) / 2 + var(--space-lg)));
+}
+.home-stories .post-list {
+    display: flex;
+    gap: var(--space-lg);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    list-style: none;
+    margin: 0;
+    padding: 0 var(--space-lg);
+    padding-left: max(var(--space-lg), calc((100vw - var(--wrap-max)) / 2 + var(--space-lg)));
+}
+.home-stories .post-list::-webkit-scrollbar { display: none; }
+.home-stories .post-list > .post-card {
+    flex: 0 0 var(--card-width);
+    min-width: 16rem;
+}
+@media (max-width: 560px) {
+    .home-stories .post-list > .post-card {
+        flex: 0 0 85%;
+    }
+}
+
+/* Recent thoughts */
+.home-thoughts {
     max-width: var(--wrap-max);
     margin: 0 auto;
     padding: 0 var(--space-lg) var(--space-xxl);
 }
-.home-recent-eyebrow {
-    margin: 0 0 var(--space-md);
-    font-size: 0.8125rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--color-ink-subtle);
-}
-.home-recent .post-list {
+.home-thoughts .post-list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, var(--card-width));
     gap: var(--space-lg);
 }
 @media (max-width: 560px) {
-    .home-recent .post-list { grid-template-columns: 1fr; }
+    .home-thoughts .post-list { grid-template-columns: 1fr; }
 }

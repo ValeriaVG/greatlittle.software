@@ -12,7 +12,6 @@ use crate::theme::{SITE_URL, layout, layout_with_image};
 mod article;
 mod breadcrumbs;
 mod card;
-mod coming_soon;
 mod index;
 mod newsletter;
 mod related;
@@ -27,7 +26,6 @@ html_template!(article, "src/blog/article");
 html_template!(breadcrumbs, "src/blog/breadcrumbs");
 html_template!(index, "src/blog/index");
 html_template!(card, "src/blog/card");
-html_template!(coming_soon, "src/blog/coming_soon");
 html_template!(newsletter, "src/blog/newsletter");
 html_template!(related, "src/blog/related");
 
@@ -203,6 +201,18 @@ pub fn cards_bundle(posts: &[Post]) -> Bundle {
     }
 }
 
+pub fn cards_bundle_refs(posts: &[&Post]) -> Bundle {
+    let mut html = String::new();
+    for post in posts {
+        html.push_str(&card_for(post));
+    }
+    Bundle {
+        html,
+        css: String::new(),
+        js: String::new(),
+    }
+}
+
 pub fn build(
     content_root: &Path,
     out_root: &Path,
@@ -229,18 +239,18 @@ pub fn build(
         cards_html.push_str(&card_for(post));
     }
 
-    cards_html.push_str(&coming_soon());
-    let mut cards_css = card_css();
-    cards_css.push_str(&coming_soon_css());
-    let mut cards_js = card_js();
-    cards_js.push_str(&coming_soon_js());
     let cards = Bundle {
         html: cards_html,
-        css: cards_css,
-        js: cards_js,
+        css: card_css(),
+        js: card_js(),
+    };
+    let news = Bundle {
+        html: newsletter(),
+        css: newsletter_css(),
+        js: newsletter_js(),
     };
     let crumbs = crumbs_bundle(&[crumb("/", "Home"), current_crumb("Blog")]);
-    let idx = index(crumbs, cards);
+    let idx = index(crumbs, cards, news);
     let page_title = format!("{BLOG_TITLE} | {SITE_NAME}");
     let blog_canonical = format!("{SITE_URL}/blog/");
     let page = layout(&page_title, BLOG_DESCRIPTION, &blog_canonical, idx);

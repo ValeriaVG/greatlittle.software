@@ -28,37 +28,56 @@ mod previews {
             js: card_js(),
         };
 
-        let mut recent_html = String::new();
-        recent_html.push_str(&card(
-            "another",
+        let mut stories_html = String::new();
+        stories_html.push_str(&card(
+            "papra",
             "",
-            "https://picsum.photos/seed/another/800/450",
-            "Abstract placeholder cover",
+            "https://picsum.photos/seed/papra/800/450",
+            "Papra screenshot",
             "lazy",
             "",
-            "2026-03-02",
-            "March 2, 2026",
-            "Notes on Building Small",
-            "Why constraints make better software, and the people who lean into them.",
+            "2026-05-10",
+            "May 10, 2026",
+            "Papra: Open Source Document Management",
+            "Taming document chaos with an open-source tool.",
         ));
-        recent_html.push_str(&card(
-            "third",
+        stories_html.push_str(&card(
+            "rackula",
             "",
-            "",
-            "",
+            "https://picsum.photos/seed/rackula/800/450",
+            "Rackula screenshot",
             "lazy",
             "",
-            "2026-02-10",
-            "February 10, 2026",
-            "Field Report",
-            "Short observations from the indie software world.",
+            "2026-04-28",
+            "April 28, 2026",
+            "Rackula: Server Rack Planner",
+            "Drag and drop rack visualizer for homelabbers.",
         ));
-        let recent = Bundle {
-            html: recent_html,
+        let stories = Bundle {
+            html: stories_html,
             css: String::new(),
             js: String::new(),
         };
 
-        latest("Featured masterpiece", featured, "yes", recent)
+        let mut thoughts_html = String::new();
+        thoughts_html.push_str(&card(
+            "evilcorp",
+            "",
+            "",
+            "",
+            "lazy",
+            "",
+            "2026-05-30",
+            "May 30, 2026",
+            "EvilCorp Syndrome",
+            "An essay on sales, marketing and better ways to do it.",
+        ));
+        let thoughts = Bundle {
+            html: thoughts_html,
+            css: String::new(),
+            js: String::new(),
+        };
+
+        latest("Featured story", featured, "yes", stories, "yes", thoughts)
     }
 }

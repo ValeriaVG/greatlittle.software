@@ -1,14 +1,22 @@
 <section class="home-featured">
-    <h2 class="home-featured-eyebrow">{eyebrow}</h2>
+    <h2 class="home-section-eyebrow">{eyebrow}</h2>
     <ul class="post-list">
         <slot name="cards"></slot>
     </ul>
 </section>
-<!--if has_recent-->
-<section class="home-recent">
-    <h2 class="home-recent-eyebrow">Recent stories</h2>
+<!--if has_stories-->
+<section class="home-stories">
+    <h2 class="home-section-eyebrow">Recent stories</h2>
     <ul class="post-list">
-        <slot name="recent"></slot>
+        <slot name="stories"></slot>
+    </ul>
+</section>
+<!--/if-->
+<!--if has_thoughts-->
+<section class="home-thoughts">
+    <h2 class="home-section-eyebrow">Recent thoughts</h2>
+    <ul class="post-list">
+        <slot name="thoughts"></slot>
     </ul>
 </section>
 <!--/if-->

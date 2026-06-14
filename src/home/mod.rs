@@ -30,14 +30,28 @@ pub fn render(content_root: &Path, include_drafts: bool) -> Bundle {
             css: blog::card_css(),
             js: blog::card_js(),
         };
-        let recent = blog::cards_bundle(&posts[1..]);
-        let has_recent = if recent.html.is_empty() { "" } else { "yes" };
+        let stories: Vec<&blog::Post> = posts[1..].iter().filter(|p| p.has_product()).collect();
+        let thoughts: Vec<&blog::Post> = posts[1..].iter().filter(|p| !p.has_product()).collect();
+        let has_stories = if stories.is_empty() { "" } else { "yes" };
+        let has_thoughts = if thoughts.is_empty() { "" } else { "yes" };
+        let stories_bundle = blog::cards_bundle_refs(&stories);
+        let thoughts_bundle = blog::cards_bundle_refs(&thoughts);
         let eyebrow = if featured.has_product() {
-            "Featured masterpiece"
+            "Featured story"
         } else {
             "Recent thoughts"
         };
-        body = merge(body, latest(eyebrow, featured_cards, has_recent, recent));
+        body = merge(
+            body,
+            latest(
+                eyebrow,
+                featured_cards,
+                has_stories,
+                stories_bundle,
+                has_thoughts,
+                thoughts_bundle,
+            ),
+        );
         og_image = featured.cover_url();
         og_image_alt = featured.cover_alt().to_string();
     }

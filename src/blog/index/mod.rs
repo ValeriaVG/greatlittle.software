@@ -6,19 +6,27 @@ mod previews {
 
     use super::super::{
         BreadcrumbsItem, breadcrumbs, breadcrumbs_css, breadcrumbs_js, card, card_css, card_js,
-        coming_soon, coming_soon_css, coming_soon_js, index,
+        index, newsletter, newsletter_css, newsletter_js,
     };
 
     fn crumbs() -> Bundle {
         let items = [
-            BreadcrumbsItem { href: "/".into(), label: "Home".into(), current: String::new() },
+            BreadcrumbsItem {
+                href: "/".into(),
+                label: "Home".into(),
+                current: String::new(),
+            },
             BreadcrumbsItem {
                 href: String::new(),
                 label: "Blog".into(),
                 current: "page".into(),
             },
         ];
-        Bundle { html: breadcrumbs(&items), css: breadcrumbs_css(), js: breadcrumbs_js() }
+        Bundle {
+            html: breadcrumbs(&items),
+            css: breadcrumbs_css(),
+            js: breadcrumbs_js(),
+        }
     }
 
     fn sample_cards(include_draft: bool) -> Bundle {
@@ -61,42 +69,49 @@ mod previews {
                 "Drafts appear in the listing when previewing with drafts included.",
             ));
         }
-        html.push_str(&coming_soon());
-        let mut css = card_css();
-        css.push_str(&coming_soon_css());
-        let mut js = card_js();
-        js.push_str(&coming_soon_js());
-        Bundle { html, css, js }
+        let news = Bundle {
+            html: newsletter(),
+            css: newsletter_css(),
+            js: newsletter_js(),
+        };
+        Bundle {
+            html,
+            css: card_css(),
+            js: card_js(),
+        }
     }
 
-    fn render(cards: Bundle) -> Bundle {
-        index(crumbs(), cards)
+    fn render(cards: Bundle, news: Bundle) -> Bundle {
+        index(crumbs(), cards, news)
+    }
+
+    fn news() -> Bundle {
+        Bundle {
+            html: newsletter(),
+            css: newsletter_css(),
+            js: newsletter_js(),
+        }
     }
 
     #[preview("Blog index/Default")]
     fn default() -> Bundle {
-        render(sample_cards(false))
+        render(sample_cards(false), news())
     }
 
     #[preview("Blog index/With draft")]
     fn with_draft() -> Bundle {
-        render(sample_cards(true))
+        render(sample_cards(true), news())
     }
 
     #[preview("Blog index/Empty")]
     fn empty() -> Bundle {
-        render(Bundle {
-            html: coming_soon(),
-            css: {
-                let mut css = card_css();
-                css.push_str(&coming_soon_css());
-                css
+        render(
+            Bundle {
+                html: String::new(),
+                css: card_css(),
+                js: card_js(),
             },
-            js: {
-                let mut js = card_js();
-                js.push_str(&coming_soon_js());
-                js
-            },
-        })
+            news(),
+        )
     }
 }
