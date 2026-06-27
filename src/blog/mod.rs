@@ -13,6 +13,7 @@ mod article;
 mod breadcrumbs;
 mod card;
 mod index;
+mod mermaid;
 mod newsletter;
 mod related;
 
@@ -288,11 +289,7 @@ fn render_post_page(post: &Post, all_posts: &[Post]) -> String {
             url: a.url.clone(),
         })
         .collect();
-    let body = Bundle {
-        html: post.body_html.clone(),
-        css: String::new(),
-        js: String::new(),
-    };
+    let body = mermaid::bundle(&post.body_html);
     let crumbs = crumbs_bundle(&[
         crumb("/", "Home"),
         crumb("/blog/", "Blog"),
