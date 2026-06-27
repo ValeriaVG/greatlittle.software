@@ -45,7 +45,7 @@ jobs:
           exec "$HOME/.cargo/bin/wasm-bindgen-real" "${args[@]}"
           WRAPPER
           chmod +x "$HOME/.cargo/bin/wasm-bindgen"
-      - uses: cloudflare/wrangler-action@v3
+      - uses: cloudflare/wrangler-action@v4
         env:
           WASM_BINDGEN_BIN: wasm-bindgen
         with:
