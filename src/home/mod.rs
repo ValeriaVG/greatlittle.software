@@ -39,7 +39,7 @@ pub fn render(content_root: &Path, include_drafts: bool) -> Bundle {
         let eyebrow = if featured.has_product() {
             "Featured story"
         } else {
-            "Recent thoughts"
+            "Featured post"
         };
         body = merge(
             body,
