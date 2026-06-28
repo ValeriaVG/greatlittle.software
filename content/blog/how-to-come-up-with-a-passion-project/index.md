@@ -45,7 +45,7 @@ Here's an example:
 
 Let's say you were thinking about all the places you visited in your travels; and those memories filled you with joy and excitement. You remembered the people you met, the places you saw, the food you tasted or the adventures you had. And the thought of dropping it all and going on a year long trip around the world makes you happy.
 
-Or, like it would be in my case, you would be coming back to the feeling of flow when you were building a software project and the feeling of joy of solving problems with it. Or that time when the server crashed and someone complained about it (because that meant that they were using it!). As opposed to the thought of travelling - that would make me slightly bored and annoyed - the thought of spending my vacation in front of a laptop creating tiny digital worlds feels me with joy.
+Or, like it would be in my case, you would be coming back to the feeling of flow when you were building a software project and the feeling of joy of solving problems with it. Or that time when the server crashed and someone complained about it (because that meant that they were using it!). As opposed to the thought of travelling - that would make me slightly bored and annoyed - the thought of spending my vacation in front of a laptop creating tiny digital worlds fills me with joy.
 
 It can be anything really. As Robert C. Martin wrote in his manifesto "We, the Unoffended":
 
@@ -55,7 +55,7 @@ So explore, dream and let yourself call all the shots.
 
 ### Distill into an idea
 
-Knowing what you are passionate about is the most important prerequite for a passion project, but it still isn't an actionable idea yet. So far it's just a vague area and a feeling. And one that is quite disconnected from reality still.
+Knowing what you are passionate about is the most important prerequisite for a passion project, but it still isn't an actionable idea yet. So far it's just a vague area and a feeling. And one that is quite disconnected from reality still.
 
 So, when you've settled onto an area you're passionate about, start intentionally limiting the scope and grounding the project. Ask yourself:
 
@@ -147,7 +147,7 @@ As with any infatuation, in the beginning you might spend a lot of time at it an
 
 If after the initial "honeymoon" you're still happy to spend time on your passion project and you've settled into a sustainable routine - it's going in the right direction. Don't rush it, the inspiration is not going to dissipate as long as you are engaging with your project.
 
-But you might get discouraged and dissapointed if you open up for feedback a bit too early. And that would be a shame, because often it says less about your product and more about people giving the feedback.
+But you might get discouraged and disappointed if you open up for feedback a bit too early. And that would be a shame, because often it says less about your product and more about people giving the feedback.
 
 It is just a matter of time till you land on a passion project that would become your life's work. Or a few of these. Just like it is with human relationships - we're not limited to only one passion in life, unless we choose to do so. And, inevitably, if you choose to share it, you'll end up with other people using it with the same joy and enthusiasm as you.
 
