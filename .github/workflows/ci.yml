@@ -19,6 +19,7 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -27,27 +28,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo run
       - run: cargo install worker-build
-      # Workaround: worker-build passes --force-enable-abort-handler to wasm-bindgen,
-      # but wasm-bindgen >= 0.2.100 removed this flag (abort handling is now default).
-      # Install wasm-bindgen-cli and wrap it to strip the obsolete flag.
-      # worker-build respects WASM_BINDGEN_BIN env var (checked before downloading its own copy).
-      - run: |
-          cargo install wasm-bindgen-cli --version 0.2.125
-          mv "$HOME/.cargo/bin/wasm-bindgen" "$HOME/.cargo/bin/wasm-bindgen-real"
-          cat > "$HOME/.cargo/bin/wasm-bindgen" << 'WRAPPER'
-          #!/bin/bash
-          args=()
-          for arg in "$@"; do
-            if [ "$arg" != "--force-enable-abort-handler" ]; then
-              args+=("$arg")
-            fi
-          done
-          exec "$HOME/.cargo/bin/wasm-bindgen-real" "${args[@]}"
-          WRAPPER
-          chmod +x "$HOME/.cargo/bin/wasm-bindgen"
       - uses: cloudflare/wrangler-action@v4
-        env:
-          WASM_BINDGEN_BIN: wasm-bindgen
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
