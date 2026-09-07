@@ -2,9 +2,9 @@ use std::fs;
 use std::io;
 use std::path::Path;
 
-use crate::blog::{collect_posts, Post};
-use crate::theme::SITE_URL;
+use crate::blog::{Post, collect_posts};
 use crate::html::escape_html;
+use crate::theme::SITE_URL;
 
 const FEED_TITLE: &str = "Great Little Software";
 const FEED_DESCRIPTION: &str = "Stories, notes and field reports about indie software.";
@@ -25,9 +25,14 @@ fn render(posts: &[Post]) -> String {
     out.push_str("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\n");
     out.push_str("  <channel>\n");
     out.push_str(&format!("    <title>{}</title>\n", escape_html(FEED_TITLE)));
-    out.push_str(&format!("    <description>{}</description>\n", escape_html(FEED_DESCRIPTION)));
+    out.push_str(&format!(
+        "    <description>{}</description>\n",
+        escape_html(FEED_DESCRIPTION)
+    ));
     out.push_str(&format!("    <link>{SITE_URL}/blog/</link>\n"));
-    out.push_str(&format!("    <lastBuildDate>{last_build}</lastBuildDate>\n"));
+    out.push_str(&format!(
+        "    <lastBuildDate>{last_build}</lastBuildDate>\n"
+    ));
     out.push_str("    <atom:link href=\"https://greatlittle.software/feed.xml\" rel=\"self\" type=\"application/rss+xml\"/>\n");
     out.push_str(&format!("    <image>\n      <url>{SITE_URL}/icon.png</url>\n      <title>{}</title>\n      <link>{SITE_URL}/blog/</link>\n    </image>\n", escape_html(FEED_TITLE)));
     for post in posts {
@@ -40,12 +45,20 @@ fn render(posts: &[Post]) -> String {
 
 fn push_item(out: &mut String, post: &Post) {
     out.push_str("    <item>\n");
-    out.push_str(&format!("      <title>{}</title>\n", escape_html(post.title())));
+    out.push_str(&format!(
+        "      <title>{}</title>\n",
+        escape_html(post.title())
+    ));
     out.push_str(&format!("      <link>{}</link>\n", post.canonical()));
     out.push_str(&format!("      <guid>{}</guid>\n", post.canonical()));
-    out.push_str(&format!("      <pubDate>{}</pubDate>\n", rss_date(post.lastmod())));
+    out.push_str(&format!(
+        "      <pubDate>{}</pubDate>\n",
+        rss_date(post.lastmod())
+    ));
     let content = item_content(post);
-    out.push_str(&format!("      <description><![CDATA[{content}]]></description>\n"));
+    out.push_str(&format!(
+        "      <description><![CDATA[{content}]]></description>\n"
+    ));
     out.push_str("    </item>\n");
 }
 
@@ -199,7 +212,10 @@ mod tests {
 
     #[test]
     fn rss_date_format() {
-        assert_eq!(rss_date("2026-04-19T16:15:24Z"), "19 Apr 2026 16:15:24 +0000");
+        assert_eq!(
+            rss_date("2026-04-19T16:15:24Z"),
+            "19 Apr 2026 16:15:24 +0000"
+        );
         assert_eq!(rss_date("2026-04-19"), "19 Apr 2026 00:00:00 +0000");
         assert_eq!(rss_date(""), "");
     }
@@ -233,9 +249,9 @@ mod tests {
 
     #[test]
     fn resolve_relative_urls_handles_root_relative() {
-        let html = "<a href=\"/about/\">about</a>";
+        let html = "<a href=\"/blog/\">blog</a>";
         let base = "https://example.com/blog/post";
         let result = resolve_relative_urls(html, base);
-        assert!(result.contains(&format!("href=\"{SITE_URL}/about/\"")));
+        assert!(result.contains(&format!("href=\"{SITE_URL}/blog/\"")));
     }
 }

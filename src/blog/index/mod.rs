@@ -6,7 +6,7 @@ mod previews {
 
     use super::super::{
         BreadcrumbsItem, breadcrumbs, breadcrumbs_css, breadcrumbs_js, card, card_css, card_js,
-        index, newsletter, newsletter_css, newsletter_js,
+        index,
     };
 
     fn crumbs() -> Bundle {
@@ -69,11 +69,6 @@ mod previews {
                 "Drafts appear in the listing when previewing with drafts included.",
             ));
         }
-        let news = Bundle {
-            html: newsletter(),
-            css: newsletter_css(),
-            js: newsletter_js(),
-        };
         Bundle {
             html,
             css: card_css(),
@@ -81,37 +76,26 @@ mod previews {
         }
     }
 
-    fn render(cards: Bundle, news: Bundle) -> Bundle {
-        index(crumbs(), cards, news)
-    }
-
-    fn news() -> Bundle {
-        Bundle {
-            html: newsletter(),
-            css: newsletter_css(),
-            js: newsletter_js(),
-        }
+    fn render(cards: Bundle) -> Bundle {
+        index(crumbs(), cards)
     }
 
     #[preview("Blog index/Default")]
     fn default() -> Bundle {
-        render(sample_cards(false), news())
+        render(sample_cards(false))
     }
 
     #[preview("Blog index/With draft")]
     fn with_draft() -> Bundle {
-        render(sample_cards(true), news())
+        render(sample_cards(true))
     }
 
     #[preview("Blog index/Empty")]
     fn empty() -> Bundle {
-        render(
-            Bundle {
-                html: String::new(),
-                css: card_css(),
-                js: card_js(),
-            },
-            news(),
-        )
+        render(Bundle {
+            html: String::new(),
+            css: card_css(),
+            js: card_js(),
+        })
     }
 }

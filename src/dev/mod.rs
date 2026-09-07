@@ -11,7 +11,7 @@ use std::time::{Duration, Instant, SystemTime};
 use macros::html_template;
 
 use crate::html::template;
-use crate::{about, blog, home, html::finalize, markdown, privacy};
+use crate::{blog, home, html::finalize, markdown, privacy};
 
 pub const DEV_OUT: &str = ".dev-dist";
 
@@ -28,7 +28,6 @@ pub fn run(port: u16, include_drafts: bool) -> std::io::Result<()> {
     let watch_paths = vec![
         PathBuf::from("content"),
         PathBuf::from("public"),
-        PathBuf::from("src/about"),
         PathBuf::from("src/blog"),
         PathBuf::from("src/home"),
         PathBuf::from("src/privacy"),
@@ -76,8 +75,6 @@ fn rebuild(out_root: &Path, version: &AtomicU64, include_drafts: bool) -> std::i
     let page = finalize(home::render(content, include_drafts));
     fs::write(out_root.join("index.html"), &page)?;
     blog::build(content, out_root, include_drafts)?;
-    let about_written = about::build(content, out_root)?;
-    println!("wrote {about_written}");
     let privacy_written = privacy::build(content, out_root)?;
     println!("wrote {privacy_written}");
     for written in markdown::build(content, out_root, include_drafts)? {
@@ -185,7 +182,13 @@ fn serve(mut stream: TcpStream, out: &Path, version: &AtomicU64) -> std::io::Res
             let md_path = file_path.join("index.md");
             if md_path.is_file() {
                 let bytes = fs::read(&md_path)?;
-                return write_response(&mut stream, 200, "text/markdown; charset=utf-8", &bytes, &[]);
+                return write_response(
+                    &mut stream,
+                    200,
+                    "text/markdown; charset=utf-8",
+                    &bytes,
+                    &[],
+                );
             }
         }
         file_path = file_path.join("index.html");
@@ -193,7 +196,13 @@ fn serve(mut stream: TcpStream, out: &Path, version: &AtomicU64) -> std::io::Res
         let md_path = PathBuf::from(format!("{}.md", file_path.display()));
         if md_path.is_file() {
             let bytes = fs::read(&md_path)?;
-            return write_response(&mut stream, 200, "text/markdown; charset=utf-8", &bytes, &[]);
+            return write_response(
+                &mut stream,
+                200,
+                "text/markdown; charset=utf-8",
+                &bytes,
+                &[],
+            );
         }
     }
 
@@ -228,7 +237,13 @@ fn inject_reload(html: &str) -> String {
     }
 }
 
-fn write_response(stream: &mut TcpStream, code: u16, ct: &str, body: &[u8], extra_headers: &[&str]) -> std::io::Result<()> {
+fn write_response(
+    stream: &mut TcpStream,
+    code: u16,
+    ct: &str,
+    body: &[u8],
+    extra_headers: &[&str],
+) -> std::io::Result<()> {
     let reason = match code {
         200 => "OK",
         _ => "",
@@ -247,7 +262,13 @@ fn write_response(stream: &mut TcpStream, code: u16, ct: &str, body: &[u8], extr
     Ok(())
 }
 
-fn write_response_with_vary(stream: &mut TcpStream, code: u16, ct: &str, body: &[u8], vary: &str) -> std::io::Result<()> {
+fn write_response_with_vary(
+    stream: &mut TcpStream,
+    code: u16,
+    ct: &str,
+    body: &[u8],
+    vary: &str,
+) -> std::io::Result<()> {
     let reason = match code {
         200 => "OK",
         _ => "",
@@ -299,7 +320,10 @@ mod tests {
         assert_eq!(content_type(Path::new("a.html")), "text/html");
         assert_eq!(content_type(Path::new("a.css")), "text/css");
         assert_eq!(content_type(Path::new("a.png")), "image/png");
-        assert_eq!(content_type(Path::new("a.unknown")), "application/octet-stream");
+        assert_eq!(
+            content_type(Path::new("a.unknown")),
+            "application/octet-stream"
+        );
     }
 
     #[test]
@@ -322,7 +346,9 @@ mod tests {
         let head = "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: text/markdown\r\n\r\n";
         assert!(head.lines().any(|line| {
             let lower = line.to_ascii_lowercase();
-            if !lower.starts_with("accept:") { return false; }
+            if !lower.starts_with("accept:") {
+                return false;
+            }
             lower[7..].split(',').any(|v| {
                 let v = v.trim();
                 v == "text/markdown" || v.starts_with("text/markdown;")
@@ -335,7 +361,9 @@ mod tests {
         let head = "GET / HTTP/1.1\r\nHost: localhost\r\nAccept: text/html\r\n\r\n";
         assert!(!head.lines().any(|line| {
             let lower = line.to_ascii_lowercase();
-            if !lower.starts_with("accept:") { return false; }
+            if !lower.starts_with("accept:") {
+                return false;
+            }
             lower[7..].split(',').any(|v| {
                 let v = v.trim();
                 v == "text/markdown" || v.starts_with("text/markdown;")

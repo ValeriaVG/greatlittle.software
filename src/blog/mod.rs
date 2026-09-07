@@ -14,7 +14,6 @@ mod breadcrumbs;
 mod card;
 mod index;
 mod mermaid;
-mod newsletter;
 mod related;
 
 const SITE_NAME: &str = "Great Little Software";
@@ -27,7 +26,6 @@ html_template!(article, "src/blog/article");
 html_template!(breadcrumbs, "src/blog/breadcrumbs");
 html_template!(index, "src/blog/index");
 html_template!(card, "src/blog/card");
-html_template!(newsletter, "src/blog/newsletter");
 html_template!(related, "src/blog/related");
 
 #[derive(Default, Deserialize)]
@@ -245,13 +243,8 @@ pub fn build(
         css: card_css(),
         js: card_js(),
     };
-    let news = Bundle {
-        html: newsletter(),
-        css: newsletter_css(),
-        js: newsletter_js(),
-    };
     let crumbs = crumbs_bundle(&[crumb("/", "Home"), current_crumb("Blog")]);
-    let idx = index(crumbs, cards, news);
+    let idx = index(crumbs, cards);
     let page_title = format!("{BLOG_TITLE} | {SITE_NAME}");
     let blog_canonical = format!("{SITE_URL}/blog/");
     let page = layout(&page_title, BLOG_DESCRIPTION, &blog_canonical, idx);
@@ -321,11 +314,6 @@ fn render_post_page(post: &Post, all_posts: &[Post]) -> String {
         "More thoughts"
     };
     let rel = related(has_cards, related_eyebrow, related_cards);
-    let news = Bundle {
-        html: newsletter(),
-        css: newsletter_css(),
-        js: newsletter_js(),
-    };
     let art = article(
         crumbs,
         post.draft_marker(),
@@ -337,7 +325,6 @@ fn render_post_page(post: &Post, all_posts: &[Post]) -> String {
         &product_data,
         &actions,
         rel,
-        news,
         post.updated(),
         &keywords,
     );

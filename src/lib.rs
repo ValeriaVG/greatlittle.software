@@ -1,8 +1,7 @@
-pub mod about;
 pub mod blog;
 pub mod dev;
-pub mod html;
 pub mod home;
+pub mod html;
 pub mod markdown;
 pub mod privacy;
 pub mod rss;

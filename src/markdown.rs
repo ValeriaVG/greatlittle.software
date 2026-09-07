@@ -17,13 +17,6 @@ pub fn build(
     fs::write(&out, &home)?;
     written.push(out.display().to_string());
 
-    let about_md = about_md(content_root);
-    let out_dir = out_root.join("about");
-    fs::create_dir_all(&out_dir)?;
-    let out = out_dir.join("index.md");
-    fs::write(&out, &about_md)?;
-    written.push(out.display().to_string());
-
     let privacy_md = privacy_md(content_root);
     let out_dir = out_root.join("privacy");
     fs::create_dir_all(&out_dir)?;
@@ -56,7 +49,7 @@ pub fn build(
 fn home_md(content_root: &Path, include_drafts: bool) -> String {
     let index_md = content_root.join("index.md");
     let raw = fs::read_to_string(&index_md).unwrap_or_default();
-    let (fm_yaml, body_md) = split_frontmatter(&raw).unwrap_or(("", &raw));
+    let (_, body_md) = split_frontmatter(&raw).unwrap_or(("", &raw));
 
     let mut frontmatter = String::new();
     frontmatter.push_str("---\n");
@@ -99,72 +92,7 @@ fn home_md(content_root: &Path, include_drafts: bool) -> String {
         body.push('\n');
     }
 
-    body.push_str(&push_str_faq(fm_yaml));
-
     frontmatter.push_str(&body);
-    frontmatter
-}
-
-fn push_str_faq(fm_yaml: &str) -> String {
-    let fm: MdFaqFrontMatter = match yaml_serde::from_str(fm_yaml) {
-        Ok(f) => f,
-        Err(_) => return String::new(),
-    };
-    if fm.faq.is_empty() {
-        return String::new();
-    }
-    let mut out = String::new();
-    let title = if fm.faq_title.is_empty() {
-        "Frequently Asked Questions"
-    } else {
-        &fm.faq_title
-    };
-    out.push_str(&format!("## {title}\n\n"));
-    for item in &fm.faq {
-        out.push_str(&format!("### {}\n\n{}\n\n", item.q, item.a));
-    }
-    out
-}
-
-fn about_md(content_root: &Path) -> String {
-    let index_md = content_root.join("about").join("index.md");
-    let raw = fs::read_to_string(&index_md).unwrap_or_default();
-    let (fm_yaml, body_md) = split_frontmatter(&raw).unwrap_or(("", &raw));
-    let fm: MdAboutFrontMatter = yaml_serde::from_str(fm_yaml)
-        .unwrap_or_else(|e| panic!("invalid frontmatter in content/about/index.md: {e}"));
-
-    let title = if fm.title.is_empty() {
-        "About"
-    } else {
-        &fm.title
-    };
-    let description = if fm.description.is_empty() {
-        "The story behind Great Little Software."
-    } else {
-        &fm.description
-    };
-
-    let mut frontmatter = String::new();
-    frontmatter.push_str("---\n");
-    frontmatter.push_str(&format!("title: {}\n", yaml_escape(title)));
-    frontmatter.push_str(&format!("description: {}\n", yaml_escape(description)));
-    frontmatter.push_str(&format!("canonical: {SITE_URL}/about/\n"));
-    frontmatter.push_str("---\n\n");
-
-    let mut body = String::new();
-    if !fm.timeline.is_empty() {
-        body.push_str("## Timeline\n\n");
-        for entry in &fm.timeline {
-            body.push_str(&format!(
-                "- **{}** ({}): {}\n",
-                entry.title, entry.date, entry.description
-            ));
-        }
-        body.push('\n');
-    }
-    body.push_str(body_md.trim());
-    frontmatter.push_str(&body);
-    frontmatter.push('\n');
     frontmatter
 }
 
@@ -291,38 +219,6 @@ fn yaml_escape(s: &str) -> String {
 }
 
 use serde::Deserialize;
-
-#[derive(Default, Deserialize)]
-struct MdFaqFrontMatter {
-    #[serde(default)]
-    faq_title: String,
-    #[serde(default)]
-    faq: Vec<MdFaqEntry>,
-}
-
-#[derive(Default, Deserialize)]
-struct MdFaqEntry {
-    q: String,
-    a: String,
-}
-
-#[derive(Default, Deserialize)]
-struct MdAboutFrontMatter {
-    #[serde(default)]
-    title: String,
-    #[serde(default)]
-    description: String,
-    #[serde(default)]
-    timeline: Vec<MdTimelineEntry>,
-}
-
-#[derive(Default, Deserialize)]
-struct MdTimelineEntry {
-    date: String,
-    title: String,
-    #[serde(default)]
-    description: String,
-}
 
 #[derive(Default, Deserialize)]
 #[serde(default)]

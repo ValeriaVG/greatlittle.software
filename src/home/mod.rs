@@ -6,7 +6,6 @@ use crate::blog;
 use crate::html::{Bundle, template};
 use crate::theme::{SITE_URL, home_layout_with_image};
 
-mod faq;
 mod latest;
 
 html_template!(latest, "src/home/latest");
@@ -55,19 +54,6 @@ pub fn render(content_root: &Path, include_drafts: bool) -> Bundle {
         og_image = featured.cover_url();
         og_image_alt = featured.cover_alt().to_string();
     }
-
-    if let Some(faq_data) = faq::load(content_root) {
-        body = merge(body, faq_data);
-    }
-
-    body = merge(
-        body,
-        Bundle {
-            html: blog::newsletter(),
-            css: blog::newsletter_css(),
-            js: blog::newsletter_js(),
-        },
-    );
 
     home_layout_with_image(
         TITLE,

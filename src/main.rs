@@ -1,9 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use greatlittle_software::{
-    about, blog, dev, home, html::finalize, markdown, privacy, rss, sitemap,
-};
+use greatlittle_software::{blog, dev, home, html::finalize, markdown, privacy, rss, sitemap};
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = std::env::args().collect();
@@ -56,11 +54,7 @@ fn main() -> std::io::Result<()> {
     let public = Path::new("public");
     if public.exists() {
         copy_dir(public, dist)?;
-        println!(
-            "copied {} to {}",
-            public.display(),
-            dist.display()
-        );
+        println!("copied {} to {}", public.display(), dist.display());
     }
 
     let content = Path::new("content");
@@ -73,9 +67,6 @@ fn main() -> std::io::Result<()> {
     for written in blog::build(content, dist, false)? {
         println!("wrote {written}");
     }
-
-    let about_out = about::build(content, dist)?;
-    println!("wrote {about_out}");
 
     let privacy_out = privacy::build(content, dist)?;
     println!("wrote {privacy_out}");
